@@ -1,30 +1,14 @@
-#include "header.h"
-
-
-
-
-
-
+#include <Arduino.h>
+#include "display.h"
+#include "ble_scanner.h"
+#include "location.h"
+#include "wifi_scanner.h"
 
 
 void setup() {
   Serial.begin(115200);
 
-  framebuffer = (uint8_t *)ps_calloc(sizeof(uint8_t), EPD_WIDTH * EPD_HEIGHT / 2);
-  if (!framebuffer){
-    Serial.println("PSRAM allocation failed.");
-    while(1);
-  }
-
-  memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
-
-  epd_init();
-    
-  epd_clear();
-
-
-  epd_poweron();
-
+  displayInit();
 
   //MOST IMPORTANT: SNIFFING
   // 'breathing', 32x32px
@@ -45,20 +29,12 @@ void setup() {
     epd_bitmap_breathing
   };
 
+  printLine(0, ">>Starting BeaconSniffer", epd_bitmap_breathing);
+  printLine(1, ">>Sniffing for Networks...", epd_bitmap_breathing);
+  displayRefresh();
 
-  // int cursor_x = BOARDER_X;
-  // int cursor_y = BOARDER_Y;
-  // writeln((GFXfont *)&FiraSans, ">>Starting BeaconSniffer", &cursor_x, &cursor_y, framebuffer);
-
-  // draw_icon(epd_bitmap_breathing, cursor_x + 15, 15, framebuffer);
-
-  printLine(">>Starting BeaconSniffer", BOARDER_Y, epd_bitmap_breathing);
-
-  printLine(">>Sniffing for Networks...", BOARDER_Y * 2, epd_bitmap_breathing);
-  epd_draw_grayscale_image(epd_full_screen(), framebuffer);
   //Debug
   Serial.println("Start BeaconSniffer");
-  epd_poweroff();
 }
 
 void loop() {
@@ -71,26 +47,3 @@ void loop() {
 
 
 
-
-//AI Function for Sniffing emoji
-void draw_icon(const uint8_t *bitmap, int x, int y, uint8_t *fb) {
-    for (int page_y = 0; page_y < 32; page_y++) {
-        for (int page_x = 0; page_x < 32; page_x++) {
-            int pixel_pos = page_y * 32 + page_x;
-            if (!(bitmap[pixel_pos / 8] & (1 << (7 - (pixel_pos % 8))))) {
-                epd_draw_pixel(x + page_x, y + page_y, 0, fb);
-            }
-        }
-    }
-}
-
-void printLine(const char *text, int y, const uint8_t *icon) {
-  int cursor_x = BOARDER_X;
-  int cursor_y = y;
-
-  writeln((GFXfont *)&FiraSans, text, &cursor_x, &cursor_y, framebuffer);
-
-  if(icon != NULL) {
-    draw_icon(icon, cursor_x + 10, y - 24, framebuffer);
-  }
-} 
