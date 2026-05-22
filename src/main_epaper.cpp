@@ -3,6 +3,7 @@
 #include "ble_scanner.h"
 #include "location.h"
 #include "wifi_scanner.h"
+#include "epaper_sender_ble.h"
 
 
 void setup() {
@@ -35,10 +36,13 @@ void setup() {
 
   //Debug
   Serial.println("Start BeaconSniffer");
+
+  //Send BLE Beacons for later localisation:
+  epaperBleSenderSetup();
 }
 
 void loop() {
-
+  // epaperBleSenderLoop(); //Nur für Debugging, aber da der BLE-Chip alles übernimmt ist das nur Mockup!
 }
 
 
