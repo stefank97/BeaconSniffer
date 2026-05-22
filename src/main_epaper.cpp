@@ -9,7 +9,7 @@
 void setup() {
   Serial.begin(115200);
 
-  displayInit();
+  Display::init();
 
   //MOST IMPORTANT: SNIFFING
   // 'breathing', 32x32px
@@ -30,21 +30,20 @@ void setup() {
     epd_bitmap_breathing
   };
 
-  printLine(0, ">>Starting BeaconSniffer", epd_bitmap_breathing);
-  printLine(1, ">>Sniffing for Networks...", epd_bitmap_breathing);
-  displayRefresh();
+  Display::printLine(0, ">>Starting BeaconSniffer", epd_bitmap_breathing);
+  Display::printLine(1, ">>Sniffing for Networks...", epd_bitmap_breathing);
+  Display::refresh();
 
   //Debug
   Serial.println("Start BeaconSniffer");
 
   //Send BLE Beacons for later localisation:
-  epaperBleSenderSetup();
+  SenderBle::setup();
 }
 
 void loop() {
-  // epaperBleSenderLoop(); //Nur für Debugging, aber da der BLE-Chip alles übernimmt ist das nur Mockup!
+  // SenderBle::loop(); //Nur für Debugging, aber da der BLE-Chip alles übernimmt ist das nur Mockup!
 }
-
 
 
 

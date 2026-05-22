@@ -1,4 +1,9 @@
-#pragma once
+#ifndef RECEIVER_BLE_H
+#define RECEIVER_BLE_H
 
-void receiverSetup();
-void receiverMockupLoop();
+namespace ReceiverBle {
+    void setup();
+    void mockupLoop();
+}
+
+#endif

@@ -1,12 +1,13 @@
 #include <Arduino.h>
 #include <receiver_ble.h>
 
+
 void setup() {
-  receiverSetup();
+  ReceiverBle::setup();
   
 }
 
 void loop() {
-  receiverMockupLoop();
+  ReceiverBle::mockupLoop();
 
 }
