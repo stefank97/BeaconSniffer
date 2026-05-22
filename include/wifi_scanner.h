@@ -2,7 +2,7 @@
 #define WIFI_SCANNER_H
 
 namespace WifiScanner {
-    
+    void scan();
 }
 
 #endif

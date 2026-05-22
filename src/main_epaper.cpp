@@ -36,6 +36,7 @@ void setup() {
 
   //Debug
   Serial.println("Start BeaconSniffer");
+  WifiScanner::scan();
 
   //Send BLE Beacons for later localisation:
   SenderBle::setup();
