@@ -32,9 +32,9 @@ constexpr const char *MQTT_HOST = MQTT_SERVER_HOST_IP; // Laptop-IP im WLAN
 constexpr int MQTT_PORT = MQTT_SERVER_PORT;
 
 //Change each Number for each ESP32 from 1 - n //Later - set it in the platformio.ini for easy change:
-constexpr const int RECEIVER_ID = 3;
-constexpr const char *MQTT_TOPIC = "receivers/3";
-constexpr const char *MQTT_CLIENT_ID = "esp32-receiver-3";
+constexpr const int RECEIVER_ID = 1;
+constexpr const char *MQTT_TOPIC = "receivers/1";
+constexpr const char *MQTT_CLIENT_ID = "esp32-receiver-1";
 //Change each Number for each ESP32 from 1 - n
 
 //Globals for MQTT_PAYLOAD:
