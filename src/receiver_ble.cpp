@@ -4,11 +4,115 @@
 #include <BLEScan.h>
 #include <BLEUtils.h>
 
-constexpr const char *TARGET_BLE_NAME = "ESP32 Beacon"; //Global Config?
-constexpr int SCAN_TIME_SECONDS = 5;
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+#include "secrets.h"
+
+//constexpr == Compiler weis den Wert bereits...
+
+//Name of ePaper for filtering!
+constexpr const char *TARGET_BLE_NAME = "ePaperBLE_Sender";
+
+//How long should be scanned for ePaper-BLEs:
+constexpr int SCAN_TIME_SECONDS = 1;
+
+//To calibrate the IOT-RSSI for 1m: BEGIN SETUP
+constexpr const int RSSI_SAMPLE_COUNT = 100;
+int rssiSamplesArray[RSSI_SAMPLE_COUNT];
+size_t rssiSampleIndex = 0;
+bool rssiSamplesReady = false;
+//END SETUP
+
+//Wifi PubSub Configs:
+constexpr const char *WIFI_SSID = ESP32RECEIVER_WIFI_SSID;
+constexpr const char *WIFI_PASSWORD = ESP32RECEIVER_WIFI_PW;
+
+constexpr const char *MQTT_HOST = MQTT_SERVER_HOST_IP; // Laptop-IP im WLAN
+constexpr int MQTT_PORT = MQTT_SERVER_PORT;
+
+//Change each Number for each ESP32 from 1 - n //Later - set it in the platformio.ini for easy change:
+constexpr const int RECEIVER_ID = 3;
+constexpr const char *MQTT_TOPIC = "receivers/3";
+constexpr const char *MQTT_CLIENT_ID = "esp32-receiver-3";
+//Change each Number for each ESP32 from 1 - n
+
+//Globals for MQTT_PAYLOAD:
+int latestRssi = 0;
+uint32_t latestSeenMs = 0;
+bool hasNewRssi = false;
+
+
+
+
 
 namespace ReceiverBle {
-  BLEScan *pBLEScan;
+  BLEScan *pBLEScan = nullptr;
+
+  WiFiClient wifiClient;
+  PubSubClient mqttClient(wifiClient);
+
+  void connectWifi() {
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    Serial.print("Verbinde WLAN");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+
+    Serial.print("\nWLAN verbunden, IP: ");
+    Serial.println(WiFi.localIP());
+  }
+
+  void connectMqtt() {
+    mqttClient.setServer(MQTT_HOST, MQTT_PORT);
+
+    while (!mqttClient.connected()) {
+      Serial.print("Verbinde MQTT...");
+
+      if (mqttClient.connect(MQTT_CLIENT_ID)) {
+        Serial.println("ok");
+      } else {
+        Serial.printf("fehlgeschlagen, rc=%d\n", mqttClient.state());
+        delay(1000);
+      }
+    }
+  }
+
+  void addRssiSample(int rssi) {
+    if (rssiSampleIndex >= RSSI_SAMPLE_COUNT) {
+      return;
+    }
+
+    rssiSamplesArray[rssiSampleIndex] = rssi;
+    rssiSampleIndex++;
+
+    if (rssiSampleIndex == RSSI_SAMPLE_COUNT) {
+      rssiSamplesReady = true;
+    }
+  }
+
+  int calculateMedianRssi() {
+    int sortedSamples[RSSI_SAMPLE_COUNT];
+
+    for (size_t i = 0; i < RSSI_SAMPLE_COUNT; i++) {
+      sortedSamples[i] = rssiSamplesArray[i];
+    }
+
+    for (size_t i = 0; i < RSSI_SAMPLE_COUNT - 1; i++) {
+      for (size_t j = i + 1; j < RSSI_SAMPLE_COUNT; j++) {
+        if (sortedSamples[j] < sortedSamples[i]) {
+          int temp = sortedSamples[i];
+          sortedSamples[i] = sortedSamples[j];
+          sortedSamples[j] = temp;
+        }
+      }
+    }
+
+  return (sortedSamples[49] + sortedSamples[50]) / 2;
+}
 
   void printHex(const std::string &data) {
     for (size_t i = 0; i < data.length(); i++) {
@@ -47,24 +151,33 @@ namespace ReceiverBle {
 
     Serial.printf("  Major: %u\n", readBigEndian16(data, 20));
     Serial.printf("  Minor: %u\n", readBigEndian16(data, 22));
-    Serial.printf("  TX Power: %d dBm\n", static_cast<int8_t>(data[24]));
+    Serial.printf("  Calibrated-RSSI: %d dBm\n", static_cast<int8_t>(data[24]));
   }
 
   class AdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) override {
-      if (!advertisedDevice.haveName() || 
-          advertisedDevice.getName() != TARGET_BLE_NAME) {
+
+      //REAL VALUES SEND: //ONLY FOR TRILATERATION!
+      if (!advertisedDevice.haveName() || advertisedDevice.getName() != TARGET_BLE_NAME){
         return;
       }
 
+      latestRssi = advertisedDevice.getRSSI();
+      hasNewRssi = true; //Only send MQTT-Message in loop() if new Beacon is sniffed...
 
-      Serial.println();
-      Serial.println("BLE device gefunden");
-      Serial.printf("  Adresse: %s\n", advertisedDevice.getAddress().toString().c_str());
-      Serial.printf("  RSSI: %d dBm\n", advertisedDevice.getRSSI());
+      //Check Name of ePaper!
+      // if (!advertisedDevice.haveName() || 
+      //     advertisedDevice.getName() != TARGET_BLE_NAME) {
+      //   return;
+      // }
 
-      Serial.printf("  Name: %s\n", advertisedDevice.getName().c_str());
+      //BEGIN Debug Output of ePaper Name + RSSI Value:
+      // Serial.printf("  Name: %s\n", advertisedDevice.getName().c_str());
+      // Serial.printf("  Real-RSSI: %d dBm\n", advertisedDevice.getRSSI());
+      //END
 
+      //BEGIN: Debug Beacon Data - But it has Problems, callback is not fast enough UI-Data-Fuck-up-happens...
+      /*
       if (advertisedDevice.haveManufacturerData()) {
         std::string manufacturerData = advertisedDevice.getManufacturerData();
 
@@ -74,36 +187,100 @@ namespace ReceiverBle {
 
         printIBeaconData(manufacturerData);
       }
+      */
+      //END
+
+      //MEDIAN CONTROL FOR 1m CALCULATE:
+      /*
+      if (advertisedDevice.haveManufacturerData()) {
+        addRssiSample(advertisedDevice.getRSSI());
+
+        if (rssiSamplesReady) {
+          int medianRssi = calculateMedianRssi();
+
+          Serial.printf("Median RSSI nach 100 Paketen: %d dBm\n", medianRssi);
+
+          rssiSampleIndex = 0;
+          rssiSamplesReady = false;
+        }
+      }
+      */
+      //MEDIAN END
     }
   };
 
   void setup() {
     Serial.begin(115200);
-    delay(1000);
+    delay(3000);
 
+    Serial.println("\n=== Receiver setup entered ===");
+
+    //Setup Wifi + MQTT:
+    Serial.println("\nconnect to Wifi start...");
+    connectWifi();
+    Serial.println("Connect to Mqtt start...");
+    connectMqtt();
+
+    //Scanning:
     Serial.println("ESP32 BLE Receiver");
-
-    BLEDevice::init("ESP32 Receiver");
+    BLEDevice::init("ESP32 BLE Receiver");
 
     pBLEScan = BLEDevice::getScan();
-    pBLEScan->setAdvertisedDeviceCallbacks(new AdvertisedDeviceCallbacks());
+    pBLEScan->setAdvertisedDeviceCallbacks(new AdvertisedDeviceCallbacks(), true, true); //Ovveride with returned serial-monitor debug info.
     pBLEScan->setActiveScan(true);
-    pBLEScan->setInterval(100);
-    pBLEScan->setWindow(99);
+    pBLEScan->setInterval(100); // 100x 0,625ms scannen
+    pBLEScan->setWindow(99); // 99x davon wirklich scannan und 1x sleep...
 
-    neopixelWrite(LED_BUILTIN, 10, 0, 0); //Receiver is red...
+    switch (RECEIVER_ID) {
+      case 1:
+        neopixelWrite(LED_BUILTIN, 10, 0, 0); // red
+        break;
+      case 2:
+        neopixelWrite(LED_BUILTIN, 0, 10, 0); // green
+        break;
+      case 3:
+        neopixelWrite(LED_BUILTIN, 0, 0, 10); // blue
+        break;
+      default:
+        neopixelWrite(LED_BUILTIN, 10, 10, 10); // white
+        break;
+      }
   }
 
-  void mockupLoop() {
-    Serial.println();
-    Serial.println("Starte BLE scan...");
+  void loop() {
+    // Serial.println();
+    // Serial.println("Starte BLE scan, print ePaper meanwhile:");
 
     BLEScanResults results = pBLEScan->start(SCAN_TIME_SECONDS, false);
 
-    Serial.printf("Scan fertig. Geraete gefunden: %d\n", results.getCount());
+    // Serial.printf("Scan fertig. Insgesamt %d Geräte in der Nähe.\n", results.getCount());
+    
     pBLEScan->clearResults();
 
-    delay(2000);
+    // delay(2000);
+
+    //Mockup MQTT:
+    mqttClient.loop();
+
+    if(!mqttClient.connected()){
+      connectMqtt();
+    }
+
+    if (hasNewRssi) {
+      hasNewRssi = false;
+
+      char payload[128];
+      snprintf(payload, sizeof(payload),
+              "{\"target\":\"%s\",\"rssi\":%d}",
+              TARGET_BLE_NAME,
+              latestRssi);
+
+      bool ok = mqttClient.publish(MQTT_TOPIC, payload);
+
+      Serial.printf("MQTT publish %s: %s\n", ok ? "ok" : "failed", payload);
+    }
+
+    // delay(2000);
   }
 }
 

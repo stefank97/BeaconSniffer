@@ -8,6 +8,6 @@ void setup() {
 }
 
 void loop() {
-  ReceiverBle::mockupLoop();
+  ReceiverBle::loop();
 
 }
