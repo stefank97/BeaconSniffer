@@ -4,12 +4,14 @@
 #include "location.h"
 #include "wifi_scanner.h"
 #include "epaper_sender_ble.h"
+#include "input.h"
 
 
 void setup() {
   Serial.begin(115200);
 
   Display::init();
+  Input::init();
 
   //MOST IMPORTANT: SNIFFING
   // 'breathing', 32x32px
@@ -34,19 +36,21 @@ void setup() {
   Display::printLine(1, ">>Sniffing for Networks...", epd_bitmap_breathing);
   Display::refresh();
 
+  WifiScanner::scan();
+  Input::setWifiListState();
+
   //Debug
   Serial.println("Start BeaconSniffer");
-  WifiScanner::scan();
+  //WifiScanner::scan();
 
   //Send BLE Beacons for later localisation:
   SenderBle::setup();
 }
 
 void loop() {
+  Input::loop();
   // SenderBle::loop(); //Nur für Debugging, aber da der BLE-Chip alles übernimmt ist das nur Mockup!
 }
-
-
 
 
 
