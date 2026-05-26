@@ -36,7 +36,7 @@ namespace Input {
 
         navButton.setLongClickHandler([] (Button2 &button) {
             if (screenState == ScreenState::MainMenu && selectedItem == 0) {
-                WifiScanner::scan();
+                WifiScanner::scanAndShowList();
                 setWifiListState();
                 return;
             }
@@ -48,6 +48,7 @@ namespace Input {
             }
 
             if (screenState == ScreenState::WifiDetails) {
+                WifiScanner::exitDetails();
                 WifiScanner::showListFullScreen();
                 setWifiListState();
                 return;

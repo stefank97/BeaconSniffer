@@ -36,7 +36,7 @@ void setup() {
   Display::printLine(1, ">>Sniffing for Networks...", epd_bitmap_breathing);
   Display::refresh();
 
-  WifiScanner::scan();
+  WifiScanner::scanAndShowList();
   Input::setWifiListState();
 
   //Debug
@@ -50,6 +50,7 @@ void setup() {
 void loop() {
   Input::loop();
   SenderBle::loop(); //Nur für Debugging, aber da der BLE-Chip alles übernimmt ist das nur Mockup!
+  WifiScanner::loop();
 }
 
 

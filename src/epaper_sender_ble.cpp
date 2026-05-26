@@ -53,7 +53,12 @@ namespace SenderBle {
   }
 
   void loop() {
-    delay(5000);
-    Serial.printf("Beacon sending läuft noch: \"%s\".\n", BLE_DEVICE_NAME);
+    // delay(5000);
+    static long lastPrint = 0;
+    if (millis() - lastPrint >= 5000) {
+      lastPrint = millis();
+      Serial.printf("Beacon sending läuft noch: \"%s\".\n", BLE_DEVICE_NAME);
+    }
+    
   }
 }

@@ -17,6 +17,9 @@ namespace WifiScanner {
     void nextSelection();
     void showDetails();
     void showListFullScreen();
+    void scanAndShowList();
+    void loop();
+    void exitDetails();
 }
 
 #endif
