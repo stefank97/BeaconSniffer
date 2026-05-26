@@ -8,19 +8,13 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+#include "oneMeterCalibration.h"
+
 //Name of ePaper for filtering!
 constexpr const char *TARGET_BLE_NAME = "ePaperBLE_Sender";
 
 //How long should be scanned for ePaper-BLEs:
 constexpr int SCAN_TIME_SECONDS = 1;
-
-//TODO IOT-RSSI-Calibration into Header-File.
-//To calibrate the IOT-RSSI for 1m: BEGIN SETUP
-constexpr const int RSSI_SAMPLE_COUNT = 100;
-int rssiSamplesArray[RSSI_SAMPLE_COUNT];
-size_t rssiSampleIndex = 0;
-bool rssiSamplesReady = false;
-//END SETUP
 
 //Change each Number for each ESP32 from 1 - n //Later - set it in the platformio.ini for easy change:
 constexpr const int RECEIVER_ID = 1;
@@ -30,7 +24,6 @@ constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-1";
 
 //Globals for MQTT_PAYLOAD:
 int latestRssi = 0;
-uint32_t latestSeenMs = 0;
 bool hasNewRssi = false;
 
 
@@ -39,41 +32,6 @@ namespace ReceiverBle {
 
   WiFiClient wifiClient;
   PubSubClient mqttClient(wifiClient);
-
-  //IOT-RSSI-CALIBRATION BEGIN:
-  void addRssiSample(int rssi) {
-    if (rssiSampleIndex >= RSSI_SAMPLE_COUNT) {
-      return;
-    }
-
-    rssiSamplesArray[rssiSampleIndex] = rssi;
-    rssiSampleIndex++;
-
-    if (rssiSampleIndex == RSSI_SAMPLE_COUNT) {
-      rssiSamplesReady = true;
-    }
-  }
-
-  int calculateMedianRssi() {
-    int sortedSamples[RSSI_SAMPLE_COUNT];
-
-    for (size_t i = 0; i < RSSI_SAMPLE_COUNT; i++) {
-      sortedSamples[i] = rssiSamplesArray[i];
-    }
-
-    for (size_t i = 0; i < RSSI_SAMPLE_COUNT - 1; i++) {
-      for (size_t j = i + 1; j < RSSI_SAMPLE_COUNT; j++) {
-        if (sortedSamples[j] < sortedSamples[i]) {
-          int temp = sortedSamples[i];
-          sortedSamples[i] = sortedSamples[j];
-          sortedSamples[j] = temp;
-        }
-      }
-    }
-
-  return (sortedSamples[49] + sortedSamples[50]) / 2;
-}
-//IOT-RSSI-CALIBRATION END:
 
   void printHex(const std::string &data) {
     for (size_t i = 0; i < data.length(); i++) {
@@ -118,13 +76,42 @@ namespace ReceiverBle {
   class AdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) override {
 
-      //REAL VALUES SEND: //ONLY FOR TRILATERATION!
+      //Check for Name of ePaper, ignore other Beacons: //Future-Work, better would be the UUID
       if (!advertisedDevice.haveName() || advertisedDevice.getName() != TARGET_BLE_NAME){
         return;
       }
 
       latestRssi = advertisedDevice.getRSSI();
       hasNewRssi = true; //Only send MQTT-Message in loop() if new Beacon is sniffed...
+
+
+      //TODO Implement useful for run-time, now it would need manual changes to work... //Change MAJOR to 100 in ePaper + read manually the 1m Values + add a new field in the mqtt-publish of ESP32-Receiver
+      //BEGIN CALIBRATION OF 1m from ePaper to ESP32-Receivers:
+      //iBeacon:
+      //data[20..21] = Major 
+      //data[22..23] = Minor 
+      //data[24] = SignalPower
+
+      //extract MAJOR:
+      std::string data = advertisedDevice.getManufacturerData();
+      uint16_t major =
+        (static_cast<uint8_t>(data[20]) << 8) |
+        static_cast<uint8_t>(data[21]);
+
+      if (advertisedDevice.haveManufacturerData() && major == 100) {
+
+        OneMeterCalibration::addRssiSample(advertisedDevice.getRSSI());
+
+        if (OneMeterCalibration::checkRssiSamplesReady()) {
+          int medianRssi = OneMeterCalibration::calculateMedianRssi();
+
+          Serial.printf("Median RSSI nach 100 Paketen: %d dBm\n", medianRssi);
+
+          OneMeterCalibration::reset();
+        }
+      }
+      //MEDIAN END
+
 
       //Check Name of ePaper!
       // if (!advertisedDevice.haveName() || 
@@ -151,29 +138,12 @@ namespace ReceiverBle {
       */
       //END
 
-      //MEDIAN CONTROL FOR 1m CALCULATE:
-      /*
-      if (advertisedDevice.haveManufacturerData()) {
-        addRssiSample(advertisedDevice.getRSSI());
-
-        if (rssiSamplesReady) {
-          int medianRssi = calculateMedianRssi();
-
-          Serial.printf("Median RSSI nach 100 Paketen: %d dBm\n", medianRssi);
-
-          rssiSampleIndex = 0;
-          rssiSamplesReady = false;
-        }
-      }
-      */
-      //MEDIAN END
     }
   };
 
   void setup() {
     Serial.begin(115200);
     delay(3000);
-    // Serial.println("\n=== Receiver setup entered ===");
 
     //Setup Wifi:
     Serial.println("\nconnect to Wifi start...");
@@ -221,7 +191,6 @@ namespace ReceiverBle {
       Wifi_Mqtt_Connector::connectMqtt(mqttClient, MQTT_CLIENT_NAME_ID);
     }
 
-    //
     if (hasNewRssi) {
       hasNewRssi = false;
 

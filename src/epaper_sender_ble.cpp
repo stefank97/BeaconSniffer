@@ -4,10 +4,10 @@
 #define BLE_DEVICE_NAME "ePaperBLE_Sender"
 
 //relocate into SIGNATURE of the functions later!
-#define BEACON_UUID "00000000-0000-0000-0000-000000000001" //ProjectID //Future Work own UUID aber für Testing ist das einfacher...
-#define BEACON_MAJOR 1 //Version
+#define BEACON_UUID "00000000-0000-0000-0000-000000000001" //ProjectID //Future Work == own UUID, but for Testing ok...
+#define BEACON_MAJOR 1 // 1 == normal Beacon // 100 == ESP32-Receiver should start to Calibrate "oneMetercalibration"...
 #define BEACON_MINOR 1 //ePaperID
-#define CALIBRATED_RSSI -52 // 1m Calculation for Example - self tested in clean-environment!
+#define CALIBRATED_RSSI -59 // Send Standard-SignalPower, but if possible Calibrate wie "oneMeterCalibration"...
 
 namespace SenderBle {
   BLEServer *pServer;
@@ -27,7 +27,7 @@ namespace SenderBle {
     beacon.setProximityUUID(BLEUUID(BEACON_UUID));
     beacon.setMajor(BEACON_MAJOR);
     beacon.setMinor(BEACON_MINOR);
-    beacon.setSignalPower(CALIBRATED_RSSI);
+    beacon.setSignalPower(CALIBRATED_RSSI); //What is the approximate RSSI reading when the receiver is 1 meter away?
 
     std::string beaconData = beacon.getData();
 

@@ -5,8 +5,8 @@
 #include "wifi_mqtt_connector.h"
 
 //Wifi PubSub Configs:
-constexpr const char *WIFI_SSID = ESP32RECEIVER_WIFI_SSID;
-constexpr const char *WIFI_PASSWORD = ESP32RECEIVER_WIFI_PW;
+constexpr const char *WIFI_SSID = WIFI_SSID_FOR_MQTT;
+constexpr const char *WIFI_PASSWORD = WIFI_PW_FOR_MQTT;
 
 constexpr const char *MQTT_HOST = MQTT_SERVER_HOST_IP; // Laptop-IP im WLAN
 constexpr int MQTT_PORT = MQTT_SERVER_PORT;

@@ -26,6 +26,21 @@ docker exec -it mymqtt mosquitto_sub -h localhost -t "receivers/#" -v
 ```
 Die ESP32-Receiver publishen per "receivers/#" den BLE-RSSI Wert vom ePaper (Achtung nicht den WLAN-ePaper-RSSI-Wert)
 
+## 1m-Kalibrierung
+
+```
+#define BEACON_MAJOR
+```
+
+Wird nur gemacht wenn bei ePaper der Beacon auf MAJOR = 100 geändert wird.
+
+MAJOR = 1 ist der normale Beacon.
+
+FUTURE-WORK => Sobald Trilateration funtioniert, das vielleicht verwenden um die Trilateration genauer zu machen?
+
+//TODO Implement useful for run-time, now it would need manual changes to work... //Change MAJOR to 100 in ePaper + read manually the 1m Values (change serial-output needed) + add a new field in the mqtt-publish of ESP32-Receiver
+
+
 # Platformio.ini
 
 ## build_flags:
