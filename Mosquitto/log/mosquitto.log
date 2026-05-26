@@ -1,0 +1,87 @@
+1779542684: mosquitto version 2.0.18 starting
+1779542684: Config loaded from /mosquitto/config/mosquitto.conf.
+1779542684: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1779542684: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1779542684: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1779542684: Opening ipv4 listen socket on port 1883.
+1779542684: Opening websockets listen socket on port 9001.
+1779542684: mosquitto version 2.0.18 running
+1779542705: New connection from 172.20.0.1:44398 on port 1883.
+1779542705: Client <unknown> disconnected due to protocol error.
+1779542706: New connection from 172.20.0.1:33728 on port 1883.
+1779542706: Client <unknown> disconnected due to protocol error.
+1779543145: mosquitto version 2.0.18 terminating
+1779543145: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779543145: Warning: File /mosquitto/data//mosquitto.db.new has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
+1779543145: Warning: File /mosquitto/data//mosquitto.db.new owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/data//mosquitto.db.new`.
+1779543145: Warning: File /mosquitto/data//mosquitto.db.new group is not mosquitto. Future versions will refuse to load this file.
+1779543186: mosquitto version 2.0.18 starting
+1779543186: Config loaded from /mosquitto/config/mosquitto.conf.
+1779543186: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1779543186: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1779543186: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1779543186: Opening ipv4 listen socket on port 1883.
+1779543186: Opening websockets listen socket on port 9001.
+1779543186: mosquitto version 2.0.18 running
+1779543204: New connection from 127.0.0.1:53320 on port 1883.
+1779543204: New client connected from 127.0.0.1:53320 as auto-5FAF5030-1C43-F29B-0B0B-F37940D25B2E (p2, c1, k60).
+1779543204: auto-5FAF5030-1C43-F29B-0B0B-F37940D25B2E 0 test/#
+1779543227: New connection from 127.0.0.1:45940 on port 1883.
+1779543227: New client connected from 127.0.0.1:45940 as auto-07CDE0CB-F086-2DCD-EE44-267CA167ED79 (p2, c1, k60).
+1779543227: Client auto-07CDE0CB-F086-2DCD-EE44-267CA167ED79 disconnected.
+1779544987: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779544987: Warning: File /mosquitto/data//mosquitto.db.new has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
+1779544987: Warning: File /mosquitto/data//mosquitto.db.new owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/data//mosquitto.db.new`.
+1779544987: Warning: File /mosquitto/data//mosquitto.db.new group is not mosquitto. Future versions will refuse to load this file.
+1779545125: New connection from 172.20.0.1:43076 on port 1883.
+1779545125: New client connected from 172.20.0.1:43076 as esp32-receiver-1 (p2, c1, k15).
+1779545163: New connection from 172.20.0.1:52242 on port 1883.
+1779545163: Client esp32-receiver-1 already connected, closing old connection.
+1779545163: New client connected from 172.20.0.1:52242 as esp32-receiver-1 (p2, c1, k15).
+1779545508: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779545512: New connection from 172.20.0.1:56434 on port 1883.
+1779545512: New client connected from 172.20.0.1:56434 as esp32-receiver-1 (p2, c1, k15).
+1779545705: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779545709: New connection from 172.20.0.1:38510 on port 1883.
+1779545709: New client connected from 172.20.0.1:38510 as esp32-receiver-1 (p2, c1, k15).
+1779545781: New connection from 172.20.0.1:45074 on port 1883.
+1779545781: Client esp32-receiver-1 already connected, closing old connection.
+1779545781: New client connected from 172.20.0.1:45074 as esp32-receiver-1 (p2, c1, k15).
+1779545916: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779545922: New connection from 172.20.0.1:36324 on port 1883.
+1779545922: New client connected from 172.20.0.1:36324 as esp32-receiver-1 (p2, c1, k15).
+1779545933: Client esp32-receiver-1 closed its connection.
+1779605431: New connection from 172.20.0.1:45396 on port 1883.
+1779605431: New client connected from 172.20.0.1:45396 as esp32-receiver-1 (p2, c1, k15).
+1779605454: New connection from 172.20.0.1:58444 on port 1883.
+1779605454: Client esp32-receiver-1 already connected, closing old connection.
+1779605454: New client connected from 172.20.0.1:58444 as esp32-receiver-1 (p2, c1, k15).
+1779605477: New connection from 172.20.0.1:43038 on port 1883.
+1779605477: Client esp32-receiver-1 already connected, closing old connection.
+1779605477: New client connected from 172.20.0.1:43038 as esp32-receiver-1 (p2, c1, k15).
+1779605600: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779605603: New connection from 172.20.0.1:39100 on port 1883.
+1779605603: New client connected from 172.20.0.1:39100 as esp32-receiver-1 (p2, c1, k15).
+1779606003: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779606003: Warning: File /mosquitto/data//mosquitto.db.new has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
+1779606003: Warning: File /mosquitto/data//mosquitto.db.new owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/data//mosquitto.db.new`.
+1779606003: Warning: File /mosquitto/data//mosquitto.db.new group is not mosquitto. Future versions will refuse to load this file.
+1779607129: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779607139: New connection from 172.20.0.1:58024 on port 1883.
+1779607139: New client connected from 172.20.0.1:58024 as esp32-receiver-1 (p2, c1, k15).
+1779607747: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779607767: New connection from 172.20.0.1:49098 on port 1883.
+1779607767: New client connected from 172.20.0.1:49098 as esp32-receiver-1 (p2, c1, k15).
+1779607804: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779607804: Warning: File /mosquitto/data//mosquitto.db.new has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
+1779607804: Warning: File /mosquitto/data//mosquitto.db.new owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/data//mosquitto.db.new`.
+1779607804: Warning: File /mosquitto/data//mosquitto.db.new group is not mosquitto. Future versions will refuse to load this file.
+1779607825: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779607827: New connection from 172.20.0.1:48594 on port 1883.
+1779607827: New client connected from 172.20.0.1:48594 as esp32-receiver-1 (p2, c1, k15).
