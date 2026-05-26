@@ -3,7 +3,7 @@
 
 namespace ReceiverBle {
     void setup();
-    void mockupLoop();
+    void loop();
 }
 
 #endif

@@ -49,7 +49,7 @@ void setup() {
 
 void loop() {
   Input::loop();
-  // SenderBle::loop(); //Nur für Debugging, aber da der BLE-Chip alles übernimmt ist das nur Mockup!
+  SenderBle::loop(); //Nur für Debugging, aber da der BLE-Chip alles übernimmt ist das nur Mockup!
 }
 
 
