@@ -10,13 +10,13 @@
 
 #include "oneMeterCalibration.h"
 
-//Name of ePaper for filtering!
+//Name of ePaper for filtering! //FutureWork == change filtering to UUID...
 constexpr const char *TARGET_BLE_NAME = "ePaperBLE_Sender";
 
 //How long should be scanned for ePaper-BLEs:
 constexpr int SCAN_TIME_SECONDS = 1;
 
-//Change each Number for each ESP32 from 1 - n //Later - set it in the platformio.ini for easy change:
+//Change each Number for each ESP32 from 1 - n //FutureWork == set it in the platformio.ini for easy change for uploads:
 constexpr const int RECEIVER_ID = 1;
 constexpr const char *MQTT_TOPIC = "receivers/1";
 constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-1";
@@ -25,6 +25,7 @@ constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-1";
 //Globals for MQTT_PAYLOAD:
 int latestRssi = 0;
 bool hasNewRssi = false;
+//int oneMeterRssi = xx;
 
 
 namespace ReceiverBle {
@@ -87,10 +88,7 @@ namespace ReceiverBle {
 
       //TODO Implement useful for run-time, now it would need manual changes to work... //Change MAJOR to 100 in ePaper + read manually the 1m Values + add a new field in the mqtt-publish of ESP32-Receiver
       //BEGIN CALIBRATION OF 1m from ePaper to ESP32-Receivers:
-      //iBeacon:
-      //data[20..21] = Major 
-      //data[22..23] = Minor 
-      //data[24] = SignalPower
+      //iBeacon: //data[20..21] = Major //data[22..23] = Minor //data[24] = SignalPower
 
       //extract MAJOR:
       std::string data = advertisedDevice.getManufacturerData();
@@ -111,33 +109,6 @@ namespace ReceiverBle {
         }
       }
       //MEDIAN END
-
-
-      //Check Name of ePaper!
-      // if (!advertisedDevice.haveName() || 
-      //     advertisedDevice.getName() != TARGET_BLE_NAME) {
-      //   return;
-      // }
-
-      //BEGIN Debug Output of ePaper Name + RSSI Value:
-      // Serial.printf("  Name: %s\n", advertisedDevice.getName().c_str());
-      // Serial.printf("  Real-RSSI: %d dBm\n", advertisedDevice.getRSSI());
-      //END
-
-      //BEGIN: Debug Beacon Data - But it has Problems, callback is not fast enough UI-Data-Fuck-up-happens...
-      /*
-      if (advertisedDevice.haveManufacturerData()) {
-        std::string manufacturerData = advertisedDevice.getManufacturerData();
-
-        Serial.print("  Manufacturer data: ");
-        printHex(manufacturerData);
-        Serial.println();
-
-        printIBeaconData(manufacturerData);
-      }
-      */
-      //END
-
     }
   };
 
