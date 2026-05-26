@@ -4,12 +4,9 @@
 #include <BLEScan.h>
 #include <BLEUtils.h>
 
+#include "wifi_mqtt_connector.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
-
-#include "secrets.h"
-
-//constexpr == Compiler weis den Wert bereits...
 
 //Name of ePaper for filtering!
 constexpr const char *TARGET_BLE_NAME = "ePaperBLE_Sender";
@@ -17,6 +14,7 @@ constexpr const char *TARGET_BLE_NAME = "ePaperBLE_Sender";
 //How long should be scanned for ePaper-BLEs:
 constexpr int SCAN_TIME_SECONDS = 1;
 
+//TODO IOT-RSSI-Calibration into Header-File.
 //To calibrate the IOT-RSSI for 1m: BEGIN SETUP
 constexpr const int RSSI_SAMPLE_COUNT = 100;
 int rssiSamplesArray[RSSI_SAMPLE_COUNT];
@@ -24,17 +22,10 @@ size_t rssiSampleIndex = 0;
 bool rssiSamplesReady = false;
 //END SETUP
 
-//Wifi PubSub Configs:
-constexpr const char *WIFI_SSID = ESP32RECEIVER_WIFI_SSID;
-constexpr const char *WIFI_PASSWORD = ESP32RECEIVER_WIFI_PW;
-
-constexpr const char *MQTT_HOST = MQTT_SERVER_HOST_IP; // Laptop-IP im WLAN
-constexpr int MQTT_PORT = MQTT_SERVER_PORT;
-
 //Change each Number for each ESP32 from 1 - n //Later - set it in the platformio.ini for easy change:
 constexpr const int RECEIVER_ID = 1;
 constexpr const char *MQTT_TOPIC = "receivers/1";
-constexpr const char *MQTT_CLIENT_ID = "esp32-receiver-1";
+constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-1";
 //Change each Number for each ESP32 from 1 - n
 
 //Globals for MQTT_PAYLOAD:
@@ -43,44 +34,13 @@ uint32_t latestSeenMs = 0;
 bool hasNewRssi = false;
 
 
-
-
-
 namespace ReceiverBle {
   BLEScan *pBLEScan = nullptr;
 
   WiFiClient wifiClient;
   PubSubClient mqttClient(wifiClient);
 
-  void connectWifi() {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-    Serial.print("Verbinde WLAN");
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-    }
-
-    Serial.print("\nWLAN verbunden, IP: ");
-    Serial.println(WiFi.localIP());
-  }
-
-  void connectMqtt() {
-    mqttClient.setServer(MQTT_HOST, MQTT_PORT);
-
-    while (!mqttClient.connected()) {
-      Serial.print("Verbinde MQTT...");
-
-      if (mqttClient.connect(MQTT_CLIENT_ID)) {
-        Serial.println("ok");
-      } else {
-        Serial.printf("fehlgeschlagen, rc=%d\n", mqttClient.state());
-        delay(1000);
-      }
-    }
-  }
-
+  //IOT-RSSI-CALIBRATION BEGIN:
   void addRssiSample(int rssi) {
     if (rssiSampleIndex >= RSSI_SAMPLE_COUNT) {
       return;
@@ -113,6 +73,7 @@ namespace ReceiverBle {
 
   return (sortedSamples[49] + sortedSamples[50]) / 2;
 }
+//IOT-RSSI-CALIBRATION END:
 
   void printHex(const std::string &data) {
     for (size_t i = 0; i < data.length(); i++) {
@@ -212,16 +173,16 @@ namespace ReceiverBle {
   void setup() {
     Serial.begin(115200);
     delay(3000);
+    // Serial.println("\n=== Receiver setup entered ===");
 
-    Serial.println("\n=== Receiver setup entered ===");
-
-    //Setup Wifi + MQTT:
+    //Setup Wifi:
     Serial.println("\nconnect to Wifi start...");
-    connectWifi();
+    Wifi_Mqtt_Connector::connectWifi();
+    //Setup MQTT:
     Serial.println("Connect to Mqtt start...");
-    connectMqtt();
+    Wifi_Mqtt_Connector::connectMqtt(mqttClient, MQTT_CLIENT_NAME_ID);
 
-    //Scanning:
+    //Setup Scanning:
     Serial.println("ESP32 BLE Receiver");
     BLEDevice::init("ESP32 BLE Receiver");
 
@@ -229,7 +190,7 @@ namespace ReceiverBle {
     pBLEScan->setAdvertisedDeviceCallbacks(new AdvertisedDeviceCallbacks(), true, true); //Ovveride with returned serial-monitor debug info.
     pBLEScan->setActiveScan(true);
     pBLEScan->setInterval(100); // 100x 0,625ms scannen
-    pBLEScan->setWindow(99); // 99x davon wirklich scannan und 1x sleep...
+    pBLEScan->setWindow(99); // 99x davon wirklich scannen und 1x sleep...
 
     switch (RECEIVER_ID) {
       case 1:
@@ -248,24 +209,19 @@ namespace ReceiverBle {
   }
 
   void loop() {
-    // Serial.println();
-    // Serial.println("Starte BLE scan, print ePaper meanwhile:");
-
+    //BLE-Scan:
     BLEScanResults results = pBLEScan->start(SCAN_TIME_SECONDS, false);
-
     // Serial.printf("Scan fertig. Insgesamt %d Geräte in der Nähe.\n", results.getCount());
-    
     pBLEScan->clearResults();
 
-    // delay(2000);
-
-    //Mockup MQTT:
+    //MQTT:
     mqttClient.loop();
 
     if(!mqttClient.connected()){
-      connectMqtt();
+      Wifi_Mqtt_Connector::connectMqtt(mqttClient, MQTT_CLIENT_NAME_ID);
     }
 
+    //
     if (hasNewRssi) {
       hasNewRssi = false;
 
@@ -279,8 +235,6 @@ namespace ReceiverBle {
 
       Serial.printf("MQTT publish %s: %s\n", ok ? "ok" : "failed", payload);
     }
-
-    // delay(2000);
   }
 }
 
