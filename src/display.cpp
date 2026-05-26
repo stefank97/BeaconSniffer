@@ -36,6 +36,7 @@ namespace Display {
 
   void refresh() {
     epd_poweron();
+    epd_clear();
     epd_draw_grayscale_image(epd_full_screen(), framebuffer);
     epd_poweroff();
   }
@@ -51,5 +52,40 @@ namespace Display {
       drawIcon(icon, cursor_x + 10, y - 24, framebuffer);
     }
   } 
-}
 
+  void clear() {
+    memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
+  }
+
+  void refreshLine(int firstLine, int lineCount) {
+    int y = BOARDER_Y * (firstLine + 1);
+    int height = BOARDER_Y * lineCount;
+
+    if (y + height > EPD_HEIGHT) {
+      height = EPD_HEIGHT - y;
+    }
+
+    Rect_t area = {
+      .x = 0,
+      .y = y,
+      .width = EPD_WIDTH,
+      .height = height
+    };
+
+    epd_poweron();
+    epd_clear_area(area);
+    epd_draw_grayscale_image(area, framebuffer + y * EPD_WIDTH / 2);
+    epd_poweroff();
+  }
+
+  void clearLine(int firstLine, int lineCount) {
+    int y = BOARDER_Y * (firstLine + 1);
+    int height = BOARDER_Y * lineCount;
+
+    if (y + height > EPD_HEIGHT) {
+      height = EPD_HEIGHT - y;
+    }
+
+    memset(framebuffer + y * EPD_WIDTH / 2, 0xFF, height * EPD_WIDTH / 2);
+  }
+}

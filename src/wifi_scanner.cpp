@@ -4,46 +4,108 @@
 #include "display.h"
 
 namespace WifiScanner {
+
+    static void drawList(int firstLine);
+    static void showList();
+
+    static const int listFirstLine = 3;
+    static const int maxNetworks = 10;
+    static int networkCount = 0;
+    static int selectedNetwork = 0;
+    static NetworkInfo networks[maxNetworks];
+
     void scan() {
         WiFi.mode(WIFI_STA);
         WiFi.disconnect();
         delay(100);
 
-        int n = WiFi.scanNetworks();
-        Serial.printf("Found %d networks\n", n);
-        
-        const int resultStartingLine = 3;
-        
-        Display::printLine(resultStartingLine - 1, "--WiFi scan results--");
 
-        
-        int maxLines = min(n, 10);
 
-        for (int i = 0; i < maxLines; i++) {
-            String line = String(i + 1) + ": " +
-                            WiFi.SSID(i) + " " +
-                            String(WiFi.RSSI(i)) + "dBm";
-                            // + " | Channel: " + WiFi.channel(i)
-                            // + " | BSSID: " + WiFi.BSSIDstr(i);
-            Serial.println(line);
-            Display::printLine( resultStartingLine + i, line.c_str());
+        int foundNetworks = WiFi.scanNetworks();
+
+        networkCount = min(foundNetworks, maxNetworks);
+        selectedNetwork = 0;
+
+
+        Serial.printf("Found %d networks\n", foundNetworks);
+
+        for (int i = 0; i < networkCount; i++) {
+            networks[i].ssid = WiFi.SSID(i);
+            networks[i].bssid = WiFi.BSSIDstr(i);
+            networks[i].rssi = WiFi.RSSI(i);
+            networks[i].channel = WiFi.channel(i);
+            networks[i].encryption = WiFi.encryptionType(i);
         }
-
-
-
-        // //DEBUG
-        // for (int i = 0; i< n; i++) {
-        //     Serial.printf("%d: %s | RSSI: %d dBm | Channel: %d | BSSID: %s\n", 
-        //         i+1,
-        //         WiFi.SSID(i).c_str(),
-        //         WiFi.RSSI(i),
-        //         WiFi.channel(i),
-        //         WiFi.BSSIDstr(i).c_str()
-        //     );
-        // }
-        Display::refresh();
+        
         WiFi.scanDelete();
+        showList();
     }
 
+
+    static void drawList(int firstLine) {
+        Display::printLine(firstLine, "--WiFi scan results--");
+
+        for (int i = 0; i < networkCount; i++) {
+            String line = String(i == selectedNetwork ? "> " : "  ") +
+                        String(i + 1) + ": " +
+                        networks[i].ssid + " " +
+                        String(networks[i].rssi) + "dBm";
+
+            Display::printLine(firstLine + 1 + i, line.c_str());
+        }
+    }
+
+    void nextSelection() {
+        if (networkCount == 0) {
+            return;
+        }
+
+        selectedNetwork++;
+        selectedNetwork %= networkCount;
+
+        showList();
+    }
+
+    void showDetails() {
+        Display::clear();
+
+        if (networkCount == 0) {
+
+            Display::printLine(0, "No WiFi selected");
+            Display::refresh();
+            return;
+        }
+
+        NetworkInfo &network = networks[selectedNetwork];
+
+        Display::printLine(0, "WiFi details");
+        Display::printLine(1, network.ssid.c_str());
+
+        String rssi = "RSSI: " + String(network.rssi) + "dBm";
+        Display::printLine(2, rssi.c_str());
+
+        String channel = "Channel: " + String(network.channel);
+        Display::printLine(3, channel.c_str());
+
+        String bssid = "BSSID: " + network.bssid;
+        Display::printLine(4, bssid.c_str());
+
+        Display::refresh();
+
+    }
+
+
+    static void showList() {
+        int firstLine = listFirstLine;
+        Display::clearLine(firstLine - 1, networkCount + 2);
+        drawList(firstLine);
+        Display::refreshLine(firstLine - 1, networkCount + 2);
+    }
+
+    void showListFullScreen() {
+        Display::clear();
+        drawList(0);
+        Display::refresh();
+    }
 
 }
