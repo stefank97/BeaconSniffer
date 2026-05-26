@@ -7,12 +7,18 @@ namespace WifiScanner {
 
     static void drawList(int firstLine);
     static void showList();
+    static int getNetworkByBssid(const String &bssid);
 
     static const int listFirstLine = 3;
     static const int maxNetworks = 10;
     static int networkCount = 0;
     static int selectedNetwork = 0;
     static NetworkInfo networks[maxNetworks];
+
+    //Details MQTT 
+    static String trackedBssid;
+    static bool detailsActive = false;
+    static long lastDetailScan = 0;     //letzte Aktualisierung
 
     void scan() {
         WiFi.mode(WIFI_STA);
@@ -38,7 +44,7 @@ namespace WifiScanner {
         }
         
         WiFi.scanDelete();
-        showList();
+        //showList();
     }
 
 
@@ -92,6 +98,10 @@ namespace WifiScanner {
 
         Display::refresh();
 
+        trackedBssid = networks[selectedNetwork].bssid;
+        detailsActive = true;
+        lastDetailScan = 0;
+
     }
 
 
@@ -108,4 +118,51 @@ namespace WifiScanner {
         Display::refresh();
     }
 
+    void loop() {
+        if (!detailsActive) {
+            return;
+        }
+
+        if (millis() - lastDetailScan < 5000) {
+            return;
+        }
+
+        lastDetailScan = millis();
+        scan();
+
+        int index = getNetworkByBssid(trackedBssid);
+
+        if (index == -1) {
+            Serial.println("Tracked WiFi not found.");
+            return;
+        }
+
+        selectedNetwork = index;
+
+        //DEBUG
+        NetworkInfo &network = networks[selectedNetwork];
+
+        Serial.println("Sending updated WiFi data: ");
+        Serial.println(network.ssid);
+        Serial.println(network.bssid);
+        Serial.println(network.rssi);
+    }
+
+    void scanAndShowList() {
+        scan();
+        showList();
+    }
+
+    void exitDetails() {
+        detailsActive = false;
+    }
+
+    static int getNetworkByBssid(const String &bssid) {
+        for (int i = 0; i < networkCount; i++) {
+            if (networks[i].bssid == bssid) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
