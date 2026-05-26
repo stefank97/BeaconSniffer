@@ -19,6 +19,12 @@ Einfach in Linux bzw. WSL im Ordner "Mosquitto":
 docker compose up
 ```
 
+Bekannte Fehler:
+```
+Verbinde MQTT...fehlgeschlagen, rc=-2
+```
+Hier kann sein, dass die DHCP-IP-Adresse des Hosts sich geändert hat!
+
 ## Test CLI command:
 
 ```

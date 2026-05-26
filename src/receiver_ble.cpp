@@ -25,54 +25,13 @@ constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-1";
 //Globals for MQTT_PAYLOAD:
 int latestRssi = 0;
 bool hasNewRssi = false;
-//int oneMeterRssi = xx;
-
+int oneMeterRssi = -59; //Calibration, or Default -59...
 
 namespace ReceiverBle {
   BLEScan *pBLEScan = nullptr;
 
   WiFiClient wifiClient;
   PubSubClient mqttClient(wifiClient);
-
-  void printHex(const std::string &data) {
-    for (size_t i = 0; i < data.length(); i++) {
-      Serial.printf("%02X ", static_cast<uint8_t>(data[i]));
-    }
-  }
-
-  uint16_t readBigEndian16(const std::string &data, size_t offset) {
-    return (static_cast<uint8_t>(data[offset]) << 8) |
-          static_cast<uint8_t>(data[offset + 1]);
-  }
-
-  void printIBeaconData(const std::string &data) {
-    if (data.length() < 25) {
-      return;
-    }
-
-    const bool isIBeacon = static_cast<uint8_t>(data[0]) == 0x4C &&
-                          static_cast<uint8_t>(data[1]) == 0x00 &&
-                          static_cast<uint8_t>(data[2]) == 0x02 &&
-                          static_cast<uint8_t>(data[3]) == 0x15;
-
-    if (!isIBeacon) {
-      return;
-    }
-
-    Serial.println("  iBeacon erkannt");
-    Serial.print("  UUID: ");
-    for (size_t i = 4; i < 20; i++) {
-      Serial.printf("%02X", static_cast<uint8_t>(data[i]));
-      if (i == 7 || i == 9 || i == 11 || i == 13) {
-        Serial.print("-");
-      }
-    }
-    Serial.println();
-
-    Serial.printf("  Major: %u\n", readBigEndian16(data, 20));
-    Serial.printf("  Minor: %u\n", readBigEndian16(data, 22));
-    Serial.printf("  Calibrated-RSSI: %d dBm\n", static_cast<int8_t>(data[24]));
-  }
 
   class AdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) override {
@@ -86,29 +45,39 @@ namespace ReceiverBle {
       hasNewRssi = true; //Only send MQTT-Message in loop() if new Beacon is sniffed...
 
 
-      //TODO Implement useful for run-time, now it would need manual changes to work... //Change MAJOR to 100 in ePaper + read manually the 1m Values + add a new field in the mqtt-publish of ESP32-Receiver
-      //BEGIN CALIBRATION OF 1m from ePaper to ESP32-Receivers:
       //iBeacon: //data[20..21] = Major //data[22..23] = Minor //data[24] = SignalPower
+      if(advertisedDevice.haveManufacturerData()) {
+        std::string data = advertisedDevice.getManufacturerData();
 
-      //extract MAJOR:
-      std::string data = advertisedDevice.getManufacturerData();
-      uint16_t major =
-        (static_cast<uint8_t>(data[20]) << 8) |
-        static_cast<uint8_t>(data[21]);
-
-      if (advertisedDevice.haveManufacturerData() && major == 100) {
-
-        OneMeterCalibration::addRssiSample(advertisedDevice.getRSSI());
-
-        if (OneMeterCalibration::checkRssiSamplesReady()) {
-          int medianRssi = OneMeterCalibration::calculateMedianRssi();
-
-          Serial.printf("Median RSSI nach 100 Paketen: %d dBm\n", medianRssi);
-
-          OneMeterCalibration::reset();
+        if(data.length() < 25){
+          Serial.printf("iBeacon is only %u long, so not 25!\n", data.length());
+          return;
         }
+
+        //TODO Implement useful for run-time, now it would need manual changes to work... //Change MAJOR to 100 in ePaper + read manually the 1m Values + add a new field in the mqtt-publish of ESP32-Receiver
+        //BEGIN CALIBRATION OF 1m from ePaper to ESP32-Receivers:
+        
+        //extract MAJOR: // 1 == normal Beacon, 100 == CalibrationPhase
+        uint16_t major =
+          (static_cast<uint8_t>(data[20]) << 8) |
+          static_cast<uint8_t>(data[21]);
+
+        if (major == 100) {
+          //extract 1m Value:
+          // oneMeterRssi = static_cast<int8_t>(data[24]); //WRONG USE the calculated value!!!
+
+          OneMeterCalibration::addRssiSample(advertisedDevice.getRSSI());
+
+          if (OneMeterCalibration::checkRssiSamplesReady()) {
+            oneMeterRssi = OneMeterCalibration::calculateMedianRssi();
+
+            Serial.printf("Median RSSI nach 100 Paketen: %d dBm\n", oneMeterRssi);
+
+            OneMeterCalibration::reset();
+          }
+        }
+        //MEDIAN END
       }
-      //MEDIAN END
     }
   };
 
@@ -167,9 +136,10 @@ namespace ReceiverBle {
 
       char payload[128];
       snprintf(payload, sizeof(payload),
-              "{\"target\":\"%s\",\"rssi\":%d}",
+              "{\"target\":\"%s\",\"rssi\":%d,\"oneMeterRssi\":%d}",
               TARGET_BLE_NAME,
-              latestRssi);
+              latestRssi,
+              oneMeterRssi);
 
       bool ok = mqttClient.publish(MQTT_TOPIC, payload);
 
