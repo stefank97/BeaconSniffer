@@ -2,12 +2,20 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include "display.h"
+#include <WiFiClient.h>
+#include <PubSubClient.h>
+#include "wifi_mqtt_connector.h"
+#include <ArduinoJson.h>
+
+#define MQTT_TOPIC "beaconsniffer/wifi"
 
 namespace WifiScanner {
 
     static void drawList(int firstLine);
     static void showList();
     static int getNetworkByBssid(const String &bssid);
+    static void publishNetwork(const NetworkInfo &network);
+    static String buildPayload(const NetworkInfo &network);
 
     static const int listFirstLine = 3;
     static const int maxNetworks = 10;
@@ -20,9 +28,13 @@ namespace WifiScanner {
     static bool detailsActive = false;
     static long lastDetailScan = 0;     //letzte Aktualisierung
 
+    //Wifi & Mqtt Client
+    static WiFiClient wifiClient;
+    static PubSubClient mqttClient(wifiClient);
+
     void scan() {
         WiFi.mode(WIFI_STA);
-        WiFi.disconnect();
+        // WiFi.disconnect();
         delay(100);
 
 
@@ -102,6 +114,9 @@ namespace WifiScanner {
         detailsActive = true;
         lastDetailScan = 0;
 
+        Wifi_Mqtt_Connector::connectWifi();
+        Wifi_Mqtt_Connector::connectMqtt(mqttClient, "epaper-wifi-scanner");
+
     }
 
 
@@ -146,6 +161,17 @@ namespace WifiScanner {
         Serial.println(network.ssid);
         Serial.println(network.bssid);
         Serial.println(network.rssi);
+
+        if (WiFi.status() != WL_CONNECTED) {
+            Wifi_Mqtt_Connector::connectWifi();
+        }
+
+        if (!mqttClient.connected()) {
+            Wifi_Mqtt_Connector::connectMqtt(mqttClient, "epaper-wifi-scanner");
+        }
+
+        mqttClient.loop();
+        publishNetwork(network);
     }
 
     void scanAndShowList() {
@@ -165,4 +191,32 @@ namespace WifiScanner {
         }
         return -1;
     }
+
+    static String buildPayload(const NetworkInfo &network) {
+        JsonDocument json;
+
+        json["ssid"] = network.ssid;
+        json["bssid"] = network.bssid;
+        json["rssi"] = network.rssi;
+        json["channel"] = network.channel;
+
+        String payload;
+        serializeJson(json, payload);
+
+        return payload;
+    }
+
+    static void publishNetwork(const NetworkInfo &network) {
+        String payload = buildPayload(network);
+        bool success = Wifi_Mqtt_Connector::publish(mqttClient, MQTT_TOPIC, payload.c_str());
+
+        if (!success) {
+            Serial.println("Publishing of network failed. Payload: ");
+            Serial.println(payload);
+        } else {
+            Serial.println("Publishing of network successful. Payload: ");
+            Serial.println(payload);
+        }
+    }
+
 }

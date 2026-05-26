@@ -7,6 +7,7 @@
 namespace Wifi_Mqtt_Connector {
     void connectWifi();
     void connectMqtt(PubSubClient &mqttClient, const char *clientNameId);
+    bool publish(PubSubClient &mqttClient, const char *topic, const char *payload);
 }
 
 #endif

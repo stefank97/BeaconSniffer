@@ -6,3 +6,5 @@
 .vscode/ipch
 
 include/secrets.h
+Mosquitto/data
+Mosquitto/log
