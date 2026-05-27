@@ -3,4 +3,4 @@ python-dotenv
 numpy
 scipy
 filterpy
-matplotlib
+websockets

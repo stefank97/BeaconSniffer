@@ -73,3 +73,15 @@ COM[n]-Port zu finden unter: Change -> PIO Home -> left hand Devices -> Port
 Durch die Angabe von Port kann man mehrere Geräte angesteckt haben und mit wechsel der ENV wechselt auch der Port/das Gerät für den Upload.
 
 
+# Pyhton-Server
+
+```
+python -m pip install -r requirements.txt
+```
+
+```
+.../source/repos/BeaconSniffer/CalculateServer$ python server.py
+```
+
+Am besten wie immer direkt aus dem Ordner starten, sonst gibts Probleme mit der .env-file!
+
