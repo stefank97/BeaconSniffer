@@ -41,4 +41,8 @@ namespace Wifi_Mqtt_Connector {
       }
     }
   }
+
+  bool publish(PubSubClient &mqttClient, const char *topic, const char *payload) {
+    return mqttClient.publish(topic, payload);
+  }
 }
