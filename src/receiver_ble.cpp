@@ -16,16 +16,16 @@ constexpr const char *TARGET_BLE_NAME = "ePaperBLE_Sender";
 //How long should be scanned for ePaper-BLEs:
 constexpr int SCAN_TIME_SECONDS = 1;
 
-//Change each Number for each ESP32 from 1 - n //FutureWork == set it in the platformio.ini for easy change for uploads:
-constexpr const int RECEIVER_ID = 3;
-constexpr const char *MQTT_TOPIC = "receivers/3";
-constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-3";
-//Change each Number for each ESP32 from 1 - n
+//The build_flag in platformio.ini sets the ID via these string helper:
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+constexpr const char *MQTT_TOPIC = "receivers/" STR(RECEIVER_ID);
+constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-" STR(RECEIVER_ID);
 
 //Globals for MQTT_PAYLOAD:
 int latestRssi = 0;
 bool hasNewRssi = false;
-int oneMeterRssi = -59; //Calibration, or Default -59...
+int oneMeterRssi = -59; //Calibration needed, or Default -59...
 
 namespace ReceiverBle {
   BLEScan *pBLEScan = nullptr;
@@ -83,7 +83,8 @@ namespace ReceiverBle {
 
   void setup() {
     Serial.begin(115200);
-    delay(3000);
+    neopixelWrite(LED_BUILTIN, 0, 0, 0); //Turn off LED, LED will turn on if Setup() was ok!
+    delay(2000);
 
     //Setup Wifi:
     Serial.println("\nconnect to Wifi start...");

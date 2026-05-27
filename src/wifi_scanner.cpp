@@ -137,7 +137,8 @@ namespace WifiScanner {
         if (!detailsActive) {
             return;
         }
-
+        
+        //delay here:
         if (millis() - lastDetailScan < 5000) {
             return;
         }
