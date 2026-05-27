@@ -35,7 +35,7 @@ namespace WifiScanner {
     void scan() {
         WiFi.mode(WIFI_STA);
         // WiFi.disconnect();
-        delay(100);
+        // delay(100);
 
 
 
@@ -163,10 +163,12 @@ namespace WifiScanner {
         Serial.println(network.rssi);
 
         if (WiFi.status() != WL_CONNECTED) {
+            Serial.println("Wifi not connected. Connecting...");
             Wifi_Mqtt_Connector::connectWifi();
         }
 
         if (!mqttClient.connected()) {
+            Serial.println("MQTT Client not connected. Connecting...");
             Wifi_Mqtt_Connector::connectMqtt(mqttClient, "epaper-wifi-scanner");
         }
 
