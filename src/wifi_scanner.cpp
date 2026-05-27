@@ -12,12 +12,12 @@
 namespace WifiScanner {
 
     static void drawList(int firstLine);
-    static void showList();
     static int getNetworkByBssid(const String &bssid);
     static void publishNetwork(const NetworkInfo &network);
     static String buildPayload(const NetworkInfo &network);
 
-    static const int listFirstLine = 3;
+    static int selectedListItem = 0; //Für main menu (0 main menu, 1 network0, 2 network1, ...)
+    static const int listFirstLine = 0;
     static const int maxNetworks = 10;
     static int networkCount = 0;
     static int selectedNetwork = 0;
@@ -42,6 +42,7 @@ namespace WifiScanner {
         int foundNetworks = WiFi.scanNetworks();
 
         networkCount = min(foundNetworks, maxNetworks);
+        selectedListItem = 0;
         selectedNetwork = 0;
 
 
@@ -61,30 +62,35 @@ namespace WifiScanner {
 
 
     static void drawList(int firstLine) {
-        Display::printLine(firstLine, "--WiFi scan results--");
+        Display::printLine(firstLine, selectedListItem == 0 ? "> Return to Main Menu" : "  Return to Main Menu");
+        Display::printLine(firstLine + 1, "--WiFi scan results--");
 
         for (int i = 0; i < networkCount; i++) {
-            String line = String(i == selectedNetwork ? "> " : "  ") +
+            int listItem = i + 1;
+            String line = String(selectedListItem == listItem ? "> " : "  ") +
                         String(i + 1) + ": " +
                         networks[i].ssid + " " +
                         String(networks[i].rssi) + "dBm";
 
-            Display::printLine(firstLine + 1 + i, line.c_str());
+            Display::printLine(firstLine + 2 + i, line.c_str());
         }
     }
 
     void nextSelection() {
-        if (networkCount == 0) {
-            return;
-        }
+        selectedListItem++;
+        selectedListItem %= (networkCount + 1);     //+1 wegen return to main menu.
 
-        selectedNetwork++;
-        selectedNetwork %= networkCount;
+        if (selectedListItem > 0) {
+            selectedNetwork = selectedListItem - 1;
+        }
 
         showList();
     }
 
     void showDetails() {
+        if (selectedListItem == 0) {
+            return;
+        }
         Display::clear();
 
         if (networkCount == 0) {
@@ -120,14 +126,7 @@ namespace WifiScanner {
     }
 
 
-    static void showList() {
-        int firstLine = listFirstLine;
-        Display::clearLine(firstLine - 1, networkCount + 2);
-        drawList(firstLine);
-        Display::refreshLine(firstLine - 1, networkCount + 2);
-    }
-
-    void showListFullScreen() {
+    void showList() {
         Display::clear();
         drawList(0);
         Display::refresh();
@@ -142,8 +141,10 @@ namespace WifiScanner {
             return;
         }
 
+        int oldSelectedListItem = selectedListItem;
         lastDetailScan = millis();
         scan();
+        selectedListItem = oldSelectedListItem;
 
         int index = getNetworkByBssid(trackedBssid);
 
@@ -219,6 +220,10 @@ namespace WifiScanner {
             Serial.println("Publishing of network successful. Payload: ");
             Serial.println(payload);
         }
+    }
+
+    bool returnSelected() {
+        return selectedListItem == 0;
     }
 
 }

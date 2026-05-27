@@ -16,10 +16,11 @@ namespace WifiScanner {
     void scan();
     void nextSelection();
     void showDetails();
-    void showListFullScreen();
+    void showList();
     void scanAndShowList();
     void loop();
     void exitDetails();
+    bool returnSelected();
 }
 
 #endif
