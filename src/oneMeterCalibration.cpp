@@ -3,33 +3,34 @@
 
 namespace OneMeterCalibration {
 
-    static constexpr const int RSSI_SAMPLE_COUNT = 100;
-    int rssiSamplesArray[RSSI_SAMPLE_COUNT];
+    static constexpr const int RSSI_SAMPLE_MAX = 100;
+    int RssiSampleSize = 100; 
+    int rssiSamplesArray[RSSI_SAMPLE_MAX];
     size_t rssiSampleIndex = 0;
     bool rssiSamplesReady = false;
 
     void addRssiSample(int rssi) {
-    if (rssiSampleIndex >= RSSI_SAMPLE_COUNT) {
+    if (rssiSampleIndex >= RssiSampleSize) {
       return;
     }
 
     rssiSamplesArray[rssiSampleIndex] = rssi;
     rssiSampleIndex++;
 
-    if (rssiSampleIndex == RSSI_SAMPLE_COUNT) {
+    if (rssiSampleIndex >= RssiSampleSize) {
       rssiSamplesReady = true;
     }
   }
 
   int calculateMedianRssi() {
-    int sortedSamples[RSSI_SAMPLE_COUNT];
+    int sortedSamples[RssiSampleSize];
 
-    for (size_t i = 0; i < RSSI_SAMPLE_COUNT; i++) {
+    for (size_t i = 0; i < RssiSampleSize; i++) {
       sortedSamples[i] = rssiSamplesArray[i];
     }
 
-    for (size_t i = 0; i < RSSI_SAMPLE_COUNT - 1; i++) {
-      for (size_t j = i + 1; j < RSSI_SAMPLE_COUNT; j++) {
+    for (size_t i = 0; i < RssiSampleSize - 1; i++) {
+      for (size_t j = i + 1; j < RssiSampleSize; j++) {
         if (sortedSamples[j] < sortedSamples[i]) {
           int temp = sortedSamples[i];
           sortedSamples[i] = sortedSamples[j];
@@ -38,15 +39,28 @@ namespace OneMeterCalibration {
       }
     }
 
-    return (sortedSamples[49] + sortedSamples[50]) / 2;
+    if (RssiSampleSize % 2 == 0) {
+      return (sortedSamples[(RssiSampleSize / 2) - 1] + sortedSamples[RssiSampleSize / 2]) / 2;
     }
 
-    bool checkRssiSamplesReady(){
-        return rssiSamplesReady;
+    return sortedSamples[RssiSampleSize / 2];    
+  }
+
+  bool checkRssiSamplesReady(){
+    return rssiSamplesReady;
+  }
+
+  void reset(){
+    rssiSampleIndex = 0;
+    rssiSamplesReady = false;
+  }
+
+  void setRssiSampleSize(uint8_t size){
+    if(size > RSSI_SAMPLE_MAX){
+      Serial.printf("RssiSampleSize max %d.", RSSI_SAMPLE_MAX);
+      return;
     }
 
-    void reset(){
-        rssiSampleIndex = 0;
-        rssiSamplesReady = false;
-    }
+    RssiSampleSize = size;
+  }
 }

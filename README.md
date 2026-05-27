@@ -1,3 +1,13 @@
+# Intervalls for Sending Beacons/MQTT/etc.
+
+| Was | Wo | Default |
+|---|---|---|
+| BLE Beacon | `include/secrets.h` -> `BLE_BEACON_SENDING_INTERVALL` | `0x40` = ca. 25/s |
+| Receiver Median | `include/secrets.h` -> `BLE_BEACON_RSSI_MEDIAN_SIZE` | `20` Samples |
+| WiFi RSSI | `src/wifi_scanner.cpp` -> `lastDetailScan < 2000` | 2 s |
+| Python/WebSocket | `CalculateServer/server.py` -> `time.sleep(2)` | 2 s |
+
+
 # ESP32-RECEIVER:
 
 NEU:

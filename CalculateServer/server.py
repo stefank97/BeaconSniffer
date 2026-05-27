@@ -249,7 +249,7 @@ def process_values():
         except Exception as e:
             logging.error("Error sending heatmap sample: " + str(e))
 
-        time.sleep(5)
+        time.sleep(os.getenv(SENDING_INTERVALL))
 
 
 def run():
