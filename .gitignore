@@ -6,5 +6,10 @@
 .vscode/ipch
 
 include/secrets.h
-Mosquitto/data
-Mosquitto/log
+Mosquitto/data/
+Mosquitto/log/
+
+CalculateServer/.env
+CalculateServer/__pycache__/
+__pycache__/
+*.pyc

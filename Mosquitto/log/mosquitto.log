@@ -85,3 +85,297 @@ To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
 1779607825: Client esp32-receiver-1 has exceeded timeout, disconnecting.
 1779607827: New connection from 172.20.0.1:48594 on port 1883.
 1779607827: New client connected from 172.20.0.1:48594 as esp32-receiver-1 (p2, c1, k15).
+1779875203: mosquitto version 2.0.18 starting
+1779875203: Config loaded from /mosquitto/config/mosquitto.conf.
+1779875203: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1779875203: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1779875203: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1779875203: Opening ipv4 listen socket on port 1883.
+1779875203: Opening websockets listen socket on port 9001.
+1779875203: mosquitto version 2.0.18 running
+1779875206: New connection from 172.20.0.1:40596 on port 1883.
+1779875206: New client connected from 172.20.0.1:40596 as esp32-receiver-2 (p2, c1, k15).
+1779875213: mosquitto version 2.0.18 terminating
+1779875213: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779875213: Warning: File /mosquitto/data//mosquitto.db.new has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
+1779875213: Warning: File /mosquitto/data//mosquitto.db.new owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/data//mosquitto.db.new`.
+1779875213: Warning: File /mosquitto/data//mosquitto.db.new group is not mosquitto. Future versions will refuse to load this file.
+1779875217: mosquitto version 2.0.18 starting
+1779875217: Config loaded from /mosquitto/config/mosquitto.conf.
+1779875217: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1779875217: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1779875217: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1779875217: Opening ipv4 listen socket on port 1883.
+1779875217: Opening websockets listen socket on port 9001.
+1779875217: mosquitto version 2.0.18 running
+1779875217: New connection from 172.20.0.1:57402 on port 1883.
+1779875217: New client connected from 172.20.0.1:57402 as esp32-receiver-2 (p2, c1, k15).
+1779875217: Client esp32-receiver-2 closed its connection.
+1779875229: New connection from 172.20.0.1:43994 on port 1883.
+1779875229: New client connected from 172.20.0.1:43994 as esp32-receiver-2 (p2, c1, k15).
+1779875243: New connection from 172.20.0.1:60800 on port 1883.
+1779875243: New client connected from 172.20.0.1:60800 as esp32-receiver-1 (p2, c1, k15).
+1779875259: Client esp32-receiver-2 has exceeded timeout, disconnecting.
+1779875305: New connection from 172.20.0.1:52668 on port 1883.
+1779875305: New client connected from 172.20.0.1:52668 as esp32-receiver-2 (p2, c1, k15).
+1779875319: Client esp32-receiver-1 has exceeded timeout, disconnecting.
+1779875324: New connection from 172.20.0.1:58370 on port 1883.
+1779875324: New client connected from 172.20.0.1:58370 as esp32-receiver-1 (p2, c1, k15).
+1779875341: New connection from 172.20.0.1:58594 on port 1883.
+1779875341: Client esp32-receiver-1 already connected, closing old connection.
+1779875341: New client connected from 172.20.0.1:58594 as esp32-receiver-1 (p2, c1, k15).
+1779875347: New connection from 172.20.0.1:38844 on port 1883.
+1779875347: Client esp32-receiver-1 already connected, closing old connection.
+1779875347: New client connected from 172.20.0.1:38844 as esp32-receiver-1 (p2, c1, k15).
+1779875347: New connection from 172.20.0.1:38850 on port 1883.
+1779875347: Client esp32-receiver-1 already connected, closing old connection.
+1779875347: New client connected from 172.20.0.1:38850 as esp32-receiver-1 (p2, c1, k15).
+1779875348: New connection from 172.20.0.1:38862 on port 1883.
+1779875348: Client esp32-receiver-1 already connected, closing old connection.
+1779875348: New client connected from 172.20.0.1:38862 as esp32-receiver-1 (p2, c1, k15).
+1779875348: New connection from 172.20.0.1:38878 on port 1883.
+1779875348: Client esp32-receiver-1 already connected, closing old connection.
+1779875348: New client connected from 172.20.0.1:38878 as esp32-receiver-1 (p2, c1, k15).
+1779875350: New connection from 172.20.0.1:38886 on port 1883.
+1779875350: Client esp32-receiver-1 already connected, closing old connection.
+1779875350: New client connected from 172.20.0.1:38886 as esp32-receiver-1 (p2, c1, k15).
+1779875351: New connection from 172.20.0.1:38894 on port 1883.
+1779875351: Client esp32-receiver-1 already connected, closing old connection.
+1779875351: New client connected from 172.20.0.1:38894 as esp32-receiver-1 (p2, c1, k15).
+1779875351: New connection from 172.20.0.1:38896 on port 1883.
+1779875351: Client esp32-receiver-1 already connected, closing old connection.
+1779875351: New client connected from 172.20.0.1:38896 as esp32-receiver-1 (p2, c1, k15).
+1779875352: New connection from 172.20.0.1:38904 on port 1883.
+1779875352: Client esp32-receiver-1 already connected, closing old connection.
+1779875352: New client connected from 172.20.0.1:38904 as esp32-receiver-1 (p2, c1, k15).
+1779875352: New connection from 172.20.0.1:38910 on port 1883.
+1779875352: Client esp32-receiver-1 already connected, closing old connection.
+1779875352: New client connected from 172.20.0.1:38910 as esp32-receiver-1 (p2, c1, k15).
+1779875353: New connection from 172.20.0.1:38316 on port 1883.
+1779875353: Client esp32-receiver-1 already connected, closing old connection.
+1779875353: New client connected from 172.20.0.1:38316 as esp32-receiver-1 (p2, c1, k15).
+1779875354: New connection from 172.20.0.1:38326 on port 1883.
+1779875354: Client esp32-receiver-1 already connected, closing old connection.
+1779875354: New client connected from 172.20.0.1:38326 as esp32-receiver-1 (p2, c1, k15).
+1779875355: New connection from 172.20.0.1:38332 on port 1883.
+1779875355: Client esp32-receiver-1 already connected, closing old connection.
+1779875355: New client connected from 172.20.0.1:38332 as esp32-receiver-1 (p2, c1, k15).
+1779875355: New connection from 172.20.0.1:38348 on port 1883.
+1779875355: Client esp32-receiver-1 already connected, closing old connection.
+1779875355: New client connected from 172.20.0.1:38348 as esp32-receiver-1 (p2, c1, k15).
+1779875356: New connection from 172.20.0.1:38364 on port 1883.
+1779875356: Client esp32-receiver-1 already connected, closing old connection.
+1779875356: New client connected from 172.20.0.1:38364 as esp32-receiver-1 (p2, c1, k15).
+1779875356: New connection from 172.20.0.1:38370 on port 1883.
+1779875356: Client esp32-receiver-1 already connected, closing old connection.
+1779875356: New client connected from 172.20.0.1:38370 as esp32-receiver-1 (p2, c1, k15).
+1779875357: New connection from 172.20.0.1:38374 on port 1883.
+1779875357: Client esp32-receiver-1 already connected, closing old connection.
+1779875357: New client connected from 172.20.0.1:38374 as esp32-receiver-1 (p2, c1, k15).
+1779875357: New connection from 172.20.0.1:38388 on port 1883.
+1779875357: Client esp32-receiver-1 already connected, closing old connection.
+1779875357: New client connected from 172.20.0.1:38388 as esp32-receiver-1 (p2, c1, k15).
+1779875358: New connection from 172.20.0.1:38400 on port 1883.
+1779875358: Client esp32-receiver-1 already connected, closing old connection.
+1779875358: New client connected from 172.20.0.1:38400 as esp32-receiver-1 (p2, c1, k15).
+1779875358: New connection from 172.20.0.1:38414 on port 1883.
+1779875358: Client esp32-receiver-1 already connected, closing old connection.
+1779875358: New client connected from 172.20.0.1:38414 as esp32-receiver-1 (p2, c1, k15).
+1779875359: New connection from 172.20.0.1:38430 on port 1883.
+1779875359: Client esp32-receiver-1 already connected, closing old connection.
+1779875359: New client connected from 172.20.0.1:38430 as esp32-receiver-1 (p2, c1, k15).
+1779875360: New connection from 172.20.0.1:38436 on port 1883.
+1779875360: Client esp32-receiver-1 already connected, closing old connection.
+1779875360: New client connected from 172.20.0.1:38436 as esp32-receiver-1 (p2, c1, k15).
+1779875360: New connection from 172.20.0.1:38442 on port 1883.
+1779875360: Client esp32-receiver-1 already connected, closing old connection.
+1779875360: New client connected from 172.20.0.1:38442 as esp32-receiver-1 (p2, c1, k15).
+1779875362: New connection from 172.20.0.1:38448 on port 1883.
+1779875362: Client esp32-receiver-1 already connected, closing old connection.
+1779875362: New client connected from 172.20.0.1:38448 as esp32-receiver-1 (p2, c1, k15).
+1779875362: New connection from 172.20.0.1:54050 on port 1883.
+1779875362: Client esp32-receiver-1 already connected, closing old connection.
+1779875362: New client connected from 172.20.0.1:54050 as esp32-receiver-1 (p2, c1, k15).
+1779875364: New connection from 172.20.0.1:54066 on port 1883.
+1779875364: Client esp32-receiver-1 already connected, closing old connection.
+1779875364: New client connected from 172.20.0.1:54066 as esp32-receiver-1 (p2, c1, k15).
+1779875365: New connection from 172.20.0.1:54078 on port 1883.
+1779875365: Client esp32-receiver-1 already connected, closing old connection.
+1779875365: New client connected from 172.20.0.1:54078 as esp32-receiver-1 (p2, c1, k15).
+1779875365: New connection from 172.20.0.1:54086 on port 1883.
+1779875365: Client esp32-receiver-1 already connected, closing old connection.
+1779875365: New client connected from 172.20.0.1:54086 as esp32-receiver-1 (p2, c1, k15).
+1779875366: New connection from 172.20.0.1:54090 on port 1883.
+1779875366: Client esp32-receiver-1 already connected, closing old connection.
+1779875366: New client connected from 172.20.0.1:54090 as esp32-receiver-1 (p2, c1, k15).
+1779875367: New connection from 172.20.0.1:54104 on port 1883.
+1779875367: Client esp32-receiver-1 already connected, closing old connection.
+1779875367: New client connected from 172.20.0.1:54104 as esp32-receiver-1 (p2, c1, k15).
+1779875368: New connection from 172.20.0.1:54114 on port 1883.
+1779875368: Client esp32-receiver-1 already connected, closing old connection.
+1779875368: New client connected from 172.20.0.1:54114 as esp32-receiver-1 (p2, c1, k15).
+1779875368: New connection from 172.20.0.1:54122 on port 1883.
+1779875368: Client esp32-receiver-1 already connected, closing old connection.
+1779875368: New client connected from 172.20.0.1:54122 as esp32-receiver-1 (p2, c1, k15).
+1779875369: New connection from 172.20.0.1:54130 on port 1883.
+1779875369: Client esp32-receiver-1 already connected, closing old connection.
+1779875369: New client connected from 172.20.0.1:54130 as esp32-receiver-1 (p2, c1, k15).
+1779875369: New connection from 172.20.0.1:54144 on port 1883.
+1779875369: Client esp32-receiver-1 already connected, closing old connection.
+1779875369: New client connected from 172.20.0.1:54144 as esp32-receiver-1 (p2, c1, k15).
+1779875370: New connection from 172.20.0.1:54148 on port 1883.
+1779875370: Client esp32-receiver-1 already connected, closing old connection.
+1779875370: New client connected from 172.20.0.1:54148 as esp32-receiver-1 (p2, c1, k15).
+1779875370: New connection from 172.20.0.1:54152 on port 1883.
+1779875370: Client esp32-receiver-1 already connected, closing old connection.
+1779875370: New client connected from 172.20.0.1:54152 as esp32-receiver-1 (p2, c1, k15).
+1779875371: New connection from 172.20.0.1:54166 on port 1883.
+1779875371: Client esp32-receiver-1 already connected, closing old connection.
+1779875371: New client connected from 172.20.0.1:54166 as esp32-receiver-1 (p2, c1, k15).
+1779875372: New connection from 172.20.0.1:54168 on port 1883.
+1779875372: Client esp32-receiver-1 already connected, closing old connection.
+1779875372: New client connected from 172.20.0.1:54168 as esp32-receiver-1 (p2, c1, k15).
+1779875373: New connection from 172.20.0.1:56536 on port 1883.
+1779875373: Client esp32-receiver-1 already connected, closing old connection.
+1779875373: New client connected from 172.20.0.1:56536 as esp32-receiver-1 (p2, c1, k15).
+1779875374: New connection from 172.20.0.1:56552 on port 1883.
+1779875374: Client esp32-receiver-1 already connected, closing old connection.
+1779875374: New client connected from 172.20.0.1:56552 as esp32-receiver-1 (p2, c1, k15).
+1779875374: New connection from 172.20.0.1:56554 on port 1883.
+1779875374: Client esp32-receiver-1 already connected, closing old connection.
+1779875374: New client connected from 172.20.0.1:56554 as esp32-receiver-1 (p2, c1, k15).
+1779875375: New connection from 172.20.0.1:56558 on port 1883.
+1779875375: Client esp32-receiver-1 already connected, closing old connection.
+1779875375: New client connected from 172.20.0.1:56558 as esp32-receiver-1 (p2, c1, k15).
+1779875375: New connection from 172.20.0.1:56568 on port 1883.
+1779875375: Client esp32-receiver-1 already connected, closing old connection.
+1779875375: New client connected from 172.20.0.1:56568 as esp32-receiver-1 (p2, c1, k15).
+1779875376: New connection from 172.20.0.1:56576 on port 1883.
+1779875376: Client esp32-receiver-1 already connected, closing old connection.
+1779875376: New client connected from 172.20.0.1:56576 as esp32-receiver-1 (p2, c1, k15).
+1779875376: New connection from 172.20.0.1:56586 on port 1883.
+1779875376: Client esp32-receiver-1 already connected, closing old connection.
+1779875376: New client connected from 172.20.0.1:56586 as esp32-receiver-1 (p2, c1, k15).
+1779875377: New connection from 172.20.0.1:56598 on port 1883.
+1779875377: Client esp32-receiver-1 already connected, closing old connection.
+1779875377: New client connected from 172.20.0.1:56598 as esp32-receiver-1 (p2, c1, k15).
+1779875377: New connection from 172.20.0.1:56606 on port 1883.
+1779875377: Client esp32-receiver-1 already connected, closing old connection.
+1779875377: New client connected from 172.20.0.1:56606 as esp32-receiver-1 (p2, c1, k15).
+1779875378: New connection from 172.20.0.1:56618 on port 1883.
+1779875378: Client esp32-receiver-1 already connected, closing old connection.
+1779875378: New client connected from 172.20.0.1:56618 as esp32-receiver-1 (p2, c1, k15).
+1779875378: New connection from 172.20.0.1:56620 on port 1883.
+1779875378: Client esp32-receiver-1 already connected, closing old connection.
+1779875378: New client connected from 172.20.0.1:56620 as esp32-receiver-1 (p2, c1, k15).
+1779875379: New connection from 172.20.0.1:56634 on port 1883.
+1779875379: Client esp32-receiver-1 already connected, closing old connection.
+1779875379: New client connected from 172.20.0.1:56634 as esp32-receiver-1 (p2, c1, k15).
+1779875380: New connection from 172.20.0.1:56640 on port 1883.
+1779875380: Client esp32-receiver-1 already connected, closing old connection.
+1779875380: New client connected from 172.20.0.1:56640 as esp32-receiver-1 (p2, c1, k15).
+1779875380: New connection from 172.20.0.1:56656 on port 1883.
+1779875380: Client esp32-receiver-1 already connected, closing old connection.
+1779875380: New client connected from 172.20.0.1:56656 as esp32-receiver-1 (p2, c1, k15).
+1779875381: New connection from 172.20.0.1:56660 on port 1883.
+1779875381: Client esp32-receiver-1 already connected, closing old connection.
+1779875381: New client connected from 172.20.0.1:56660 as esp32-receiver-1 (p2, c1, k15).
+1779875382: New connection from 172.20.0.1:56674 on port 1883.
+1779875382: Client esp32-receiver-1 already connected, closing old connection.
+1779875382: New client connected from 172.20.0.1:56674 as esp32-receiver-1 (p2, c1, k15).
+1779875383: New connection from 172.20.0.1:39474 on port 1883.
+1779875383: Client esp32-receiver-1 already connected, closing old connection.
+1779875383: New client connected from 172.20.0.1:39474 as esp32-receiver-1 (p2, c1, k15).
+1779875384: New connection from 172.20.0.1:39480 on port 1883.
+1779875384: Client esp32-receiver-1 already connected, closing old connection.
+1779875384: New client connected from 172.20.0.1:39480 as esp32-receiver-1 (p2, c1, k15).
+1779875385: New connection from 172.20.0.1:39490 on port 1883.
+1779875385: Client esp32-receiver-1 already connected, closing old connection.
+1779875385: New client connected from 172.20.0.1:39490 as esp32-receiver-1 (p2, c1, k15).
+1779875385: New connection from 172.20.0.1:39504 on port 1883.
+1779875385: Client esp32-receiver-1 already connected, closing old connection.
+1779875385: New client connected from 172.20.0.1:39504 as esp32-receiver-1 (p2, c1, k15).
+1779875386: New connection from 172.20.0.1:39516 on port 1883.
+1779875386: Client esp32-receiver-1 already connected, closing old connection.
+1779875386: New client connected from 172.20.0.1:39516 as esp32-receiver-1 (p2, c1, k15).
+1779875387: New connection from 172.20.0.1:39522 on port 1883.
+1779875387: Client esp32-receiver-1 already connected, closing old connection.
+1779875387: New client connected from 172.20.0.1:39522 as esp32-receiver-1 (p2, c1, k15).
+1779875387: New connection from 172.20.0.1:39538 on port 1883.
+1779875387: Client esp32-receiver-1 already connected, closing old connection.
+1779875387: New client connected from 172.20.0.1:39538 as esp32-receiver-1 (p2, c1, k15).
+1779875388: New connection from 172.20.0.1:39540 on port 1883.
+1779875388: Client esp32-receiver-1 already connected, closing old connection.
+1779875388: New client connected from 172.20.0.1:39540 as esp32-receiver-1 (p2, c1, k15).
+1779875388: New connection from 172.20.0.1:39546 on port 1883.
+1779875388: Client esp32-receiver-1 already connected, closing old connection.
+1779875388: New client connected from 172.20.0.1:39546 as esp32-receiver-1 (p2, c1, k15).
+1779875389: New connection from 172.20.0.1:39550 on port 1883.
+1779875389: Client esp32-receiver-1 already connected, closing old connection.
+1779875389: New client connected from 172.20.0.1:39550 as esp32-receiver-1 (p2, c1, k15).
+1779875389: New connection from 172.20.0.1:39566 on port 1883.
+1779875389: Client esp32-receiver-1 already connected, closing old connection.
+1779875389: New client connected from 172.20.0.1:39566 as esp32-receiver-1 (p2, c1, k15).
+1779875421: New connection from 172.20.0.1:40236 on port 1883.
+1779875421: New client connected from 172.20.0.1:40236 as esp32-receiver-3 (p2, c1, k15).
+1779875448: New connection from 172.20.0.1:32936 on port 1883.
+1779875448: Client esp32-receiver-1 already connected, closing old connection.
+1779875448: New client connected from 172.20.0.1:32936 as esp32-receiver-1 (p2, c1, k15).
+1779875452: New connection from 172.20.0.1:32952 on port 1883.
+1779875452: Client esp32-receiver-3 already connected, closing old connection.
+1779875452: New client connected from 172.20.0.1:32952 as esp32-receiver-3 (p2, c1, k15).
+1779875520: New connection from 127.0.0.1:46338 on port 1883.
+1779875520: New client connected from 127.0.0.1:46338 as auto-333B8D64-F884-85A4-BB6D-2CCFE31A8690 (p2, c1, k60).
+1779875520: auto-333B8D64-F884-85A4-BB6D-2CCFE31A8690 0 receivers/#
+1779875570: New connection from 127.0.0.1:44792 on port 1883.
+1779875570: New client connected from 127.0.0.1:44792 as auto-78233FCD-EB56-9B99-968E-28B705335BE0 (p2, c1, k60).
+1779875570: auto-78233FCD-EB56-9B99-968E-28B705335BE0 0 beaconsniffer/#
+1779875767: New connection from 172.20.0.1:55628 on port 1883.
+1779875767: New client connected from 172.20.0.1:55628 as epaper-wifi-scanner (p2, c1, k15).
+1779877013: New connection from 172.20.0.1:35720 on port 1883.
+1779877013: New client connected from 172.20.0.1:35720 as SubscriberClient (p2, c1, k60).
+1779877013: SubscriberClient 0 receivers/#
+1779877017: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779877017: Warning: File /mosquitto/data//mosquitto.db.new has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
+1779877017: Warning: File /mosquitto/data//mosquitto.db.new owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/data//mosquitto.db.new`.
+1779877017: Warning: File /mosquitto/data//mosquitto.db.new group is not mosquitto. Future versions will refuse to load this file.
+1779877401: Client SubscriberClient disconnected.
+1779877438: New connection from 172.20.0.1:50078 on port 1883.
+1779877438: New client connected from 172.20.0.1:50078 as SubscriberClient (p2, c1, k60).
+1779877438: SubscriberClient 0 receivers/#
+1779877973: Client SubscriberClient disconnected.
+1779877977: New connection from 172.20.0.1:38698 on port 1883.
+1779877977: New client connected from 172.20.0.1:38698 as SubscriberClient (p2, c1, k60).
+1779877977: SubscriberClient 0 receivers/#
+1779878431: Client SubscriberClient disconnected.
+1779878818: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779878818: Warning: File /mosquitto/data//mosquitto.db.new has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/data//mosquitto.db.new`.
+1779878818: Warning: File /mosquitto/data//mosquitto.db.new owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/data//mosquitto.db.new`.
+1779878818: Warning: File /mosquitto/data//mosquitto.db.new group is not mosquitto. Future versions will refuse to load this file.
+1779878823: New connection from 172.20.0.1:37466 on port 1883.
+1779878823: New client connected from 172.20.0.1:37466 as SubscriberClient (p2, c1, k60).
+1779878823: SubscriberClient 0 receivers/#
+1779878823: SubscriberClient 0 beaconsniffer/wifi
+1779878972: Client epaper-wifi-scanner has exceeded timeout, disconnecting.
+1779879016: New connection from 172.20.0.1:58412 on port 1883.
+1779879016: New client connected from 172.20.0.1:58412 as epaper-wifi-scanner (p2, c1, k15).
+1779879247: New connection from 172.20.0.1:36894 on port 1883.
+1779879247: Client esp32-receiver-1 already connected, closing old connection.
+1779879247: New client connected from 172.20.0.1:36894 as esp32-receiver-1 (p2, c1, k15).
+1779879302: Client epaper-wifi-scanner has exceeded timeout, disconnecting.
+1779879307: New connection from 172.20.0.1:58822 on port 1883.
+1779879307: New client connected from 172.20.0.1:58822 as epaper-wifi-scanner (p2, c1, k15).
+1779879338: Client esp32-receiver-2 has exceeded timeout, disconnecting.
+1779879356: New connection from 172.20.0.1:45120 on port 1883.
+1779879356: New client connected from 172.20.0.1:45120 as esp32-receiver-2 (p2, c1, k15).
+1779879596: Client esp32-receiver-2 has exceeded timeout, disconnecting.
+1779879699: New connection from 172.20.0.1:56096 on port 1883.
+1779879699: New client connected from 172.20.0.1:56096 as esp32-receiver-2 (p2, c1, k15).
+1779880122: Client SubscriberClient disconnected.
+1779880125: Client auto-78233FCD-EB56-9B99-968E-28B705335BE0 disconnected.
+1779880126: Client auto-333B8D64-F884-85A4-BB6D-2CCFE31A8690 disconnected.

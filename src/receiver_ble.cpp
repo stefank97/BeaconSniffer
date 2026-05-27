@@ -17,9 +17,9 @@ constexpr const char *TARGET_BLE_NAME = "ePaperBLE_Sender";
 constexpr int SCAN_TIME_SECONDS = 1;
 
 //Change each Number for each ESP32 from 1 - n //FutureWork == set it in the platformio.ini for easy change for uploads:
-constexpr const int RECEIVER_ID = 1;
-constexpr const char *MQTT_TOPIC = "receivers/1";
-constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-1";
+constexpr const int RECEIVER_ID = 3;
+constexpr const char *MQTT_TOPIC = "receivers/3";
+constexpr const char *MQTT_CLIENT_NAME_ID = "esp32-receiver-3";
 //Change each Number for each ESP32 from 1 - n
 
 //Globals for MQTT_PAYLOAD:
@@ -125,11 +125,11 @@ namespace ReceiverBle {
     pBLEScan->clearResults();
 
     //MQTT:
-    mqttClient.loop();
-
     if(!mqttClient.connected()){
       Wifi_Mqtt_Connector::connectMqtt(mqttClient, MQTT_CLIENT_NAME_ID);
     }
+
+    mqttClient.loop();
 
     if (hasNewRssi) {
       hasNewRssi = false;

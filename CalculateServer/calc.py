@@ -51,7 +51,7 @@ class TrilaterationController:
             rssi_3 (float): The RSSI value received from base station 3.
 
         Returns:
-            tuple: The estimated position (x, y) scaled to fit within a 32x32 grid.
+            tuple: The estimated position (x, y).
         """
         # Calculate distances
         d1 = self.get_distance(rssi_1, 1)
@@ -61,10 +61,12 @@ class TrilaterationController:
         # Trilateration
         estimated_x, estimated_y = self.trilaterate(d1, d2, d3)
 
-        # Scale the coordinates to fit within a 32x32 grid
-        scaled_x, scaled_y = self.scale_coordinates(estimated_x, estimated_y)
+        return estimated_x, estimated_y
 
-        return scaled_x, scaled_y
+        # Scale the coordinates to fit within a 32x32 grid
+        # scaled_x, scaled_y = self.scale_coordinates(estimated_x, estimated_y)
+
+        # return scaled_x, scaled_y
 
     def trilaterate(self, d1: float, d2: float, d3: float) -> tuple:
         """
@@ -127,30 +129,30 @@ class TrilaterationController:
 
         return 10 ** ((measured_power - rssi) / (10 * self.path_loss_exponent))
 
-    def scale_coordinates(self, x: float, y: float) -> tuple:
-        """
-        Scale the given coordinates to fit within the specified max_value.
+    # def scale_coordinates(self, x: float, y: float) -> tuple:
+    #     """
+    #     Scale the given coordinates to fit within the specified max_value.
 
-        Parameters:
-        x (float): The x-coordinate to be scaled.
-        y (float): The y-coordinate to be scaled.
+    #     Parameters:
+    #     x (float): The x-coordinate to be scaled.
+    #     y (float): The y-coordinate to be scaled.
 
-        Returns:
-        tuple: A tuple containing the scaled x and y coordinates.
-        """
-        # Maximum x and y values from the base stations
-        initial_x = max(self.bp_1[0], self.bp_2[0], self.bp_3[0])
-        initial_y = max(self.bp_1[1], self.bp_2[1], self.bp_3[1])
+    #     Returns:
+    #     tuple: A tuple containing the scaled x and y coordinates.
+    #     """
+    #     # Maximum x and y values from the base stations
+    #     initial_x = max(self.bp_1[0], self.bp_2[0], self.bp_3[0])
+    #     initial_y = max(self.bp_1[1], self.bp_2[1], self.bp_3[1])
 
-        # Scale the coordinates
-        scaled_x = int((x / initial_x) * self.scale)
-        scaled_y = int((y / initial_y) * self.scale)
+    #     # Scale the coordinates
+    #     scaled_x = int((x / initial_x) * self.scale)
+    #     scaled_y = int((y / initial_y) * self.scale)
 
-        # Ensure the scaled coordinates are within the grid
-        scaled_x = max(0, min(scaled_x, self.scale - 1))
-        scaled_y = max(0, min(scaled_y, self.scale - 1))
+    #     # Ensure the scaled coordinates are within the grid
+    #     scaled_x = max(0, min(scaled_x, self.scale - 1))
+    #     scaled_y = max(0, min(scaled_y, self.scale - 1))
 
-        return scaled_x, scaled_y
+    #     return scaled_x, scaled_y
 
     def __str__(self):
         return f"TrilaterationController(bp_1={self.bp_1}, bp_2={self.bp_2}, bp_3={self.bp_3})"
@@ -199,4 +201,4 @@ if __name__ == "__main__":
     print()
 
     print(f"Estimated position: {position}")
-    print(f"Scaled position:    {position2}")
+    # print(f"Scaled position:    {position2}")
