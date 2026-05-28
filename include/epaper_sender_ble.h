@@ -9,6 +9,8 @@
 namespace SenderBle {
     void setup();
     void loop();
+    void setMajor(int major);
+    int getMajor();
 }
 
 #endif

@@ -4,6 +4,7 @@
 namespace ReceiverBle {
     void setup();
     void loop();
+    void setMajor(int major);
 }
 
 #endif

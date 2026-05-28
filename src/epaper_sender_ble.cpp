@@ -6,13 +6,17 @@
 
 //relocate into SIGNATURE of the functions later!
 #define BEACON_UUID "00000000-0000-0000-0000-000000000001" //ProjectID //Future Work == own UUID, but for Testing ok...
-#define BEACON_MAJOR 1 // 1 == normal Beacon // 100 == ESP32-Receiver should start to Calibrate "oneMetercalibration"...
+//#define BEACON_MAJOR 1 // 1 == normal Beacon // 100 == ESP32-Receiver should start to Calibrate "oneMetercalibration"...
 #define BEACON_MINOR 1 //ePaperID //unnecessary for now
 #define CALIBRATED_RSSI -59 // Send Standard-SignalPower, but if possible Calibrate wie "oneMeterCalibration"...
 
 namespace SenderBle {
   BLEServer *pServer;
   BLEAdvertising *pAdvertising;
+
+  static void updateBeacon(int major);
+  static int currentMajor = 1;
+  static bool advertisingStarted = false;
 
   void setup() {
     Serial.begin(115200);
@@ -22,35 +26,9 @@ namespace SenderBle {
 
     BLEDevice::init(BLE_DEVICE_NAME);
     pServer = BLEDevice::createServer();
-
-    BLEBeacon beacon;
-    beacon.setManufacturerId(0x4C00);
-    beacon.setProximityUUID(BLEUUID(BEACON_UUID));
-    beacon.setMajor(BEACON_MAJOR);
-    beacon.setMinor(BEACON_MINOR);
-    beacon.setSignalPower(CALIBRATED_RSSI); //What is the approximate RSSI reading when the receiver is 1 meter away?
-
-    std::string beaconData = beacon.getData();
-
-    Serial.print("Manufacturere data for iBeacon are set.");
-    // Serial.print("Raw manufacturer data: ");
-    // for (size_t i = 0; i < beaconData.length(); i++) {
-    //   Serial.printf("%02X ", (uint8_t)beaconData[i]);
-    // }
-    // Serial.println();
-
-    BLEAdvertisementData advertisementData;
-    advertisementData.setFlags(0x1A);
-    advertisementData.setManufacturerData(beaconData);
-
     pAdvertising = pServer->getAdvertising();
-    pAdvertising->setMinInterval(BLE_BEACON_SENDING_INTERVAL); 
-    pAdvertising->setMaxInterval(BLE_BEACON_SENDING_INTERVAL); 
-    pAdvertising->setAdvertisementData(advertisementData);
-    pAdvertising->start();
 
-    Serial.printf("Beacon started with UUID: %s, Major: %d, Minor: %d\n",
-                  BEACON_UUID, BEACON_MAJOR, BEACON_MINOR);
+   updateBeacon(currentMajor);
   }
 
   void loop() {
@@ -60,5 +38,51 @@ namespace SenderBle {
       Serial.printf("Beacon sending läuft noch: \"%s\".\n", BLE_DEVICE_NAME);
     }
     
+  }
+
+    static void updateBeacon(int major) {
+      currentMajor = major;
+
+      BLEBeacon beacon;
+      beacon.setManufacturerId(0x4C00);
+      beacon.setProximityUUID(BLEUUID(BEACON_UUID));
+      beacon.setMajor(currentMajor);
+      beacon.setMinor(BEACON_MINOR);
+      beacon.setSignalPower(CALIBRATED_RSSI); //What is the approximate RSSI reading when the receiver is 1 meter away?
+
+      std::string beaconData = beacon.getData();
+
+      Serial.print("Manufacturere data for iBeacon are set.");
+      // Serial.print("Raw manufacturer data: ");
+      // for (size_t i = 0; i < beaconData.length(); i++) {
+      //   Serial.printf("%02X ", (uint8_t)beaconData[i]);
+      // }
+      // Serial.println();
+
+      BLEAdvertisementData advertisementData;
+      advertisementData.setFlags(0x1A);
+      advertisementData.setManufacturerData(beaconData);
+
+      //pAdvertising = pServer->getAdvertising();
+      pAdvertising->setMinInterval(BLE_BEACON_SENDING_INTERVAL); 
+      pAdvertising->setMaxInterval(BLE_BEACON_SENDING_INTERVAL); 
+
+      if (advertisingStarted) {
+        pAdvertising->stop();
+      }
+      pAdvertising->setAdvertisementData(advertisementData);
+      pAdvertising->start();
+      advertisingStarted = true;
+
+      Serial.printf("Beacon started with UUID: %s, Major: %d, Minor: %d\n",
+                    BEACON_UUID, currentMajor, BEACON_MINOR);
+  }
+
+  void setMajor(int major) {
+    updateBeacon(major);
+    Serial.printf("Beacon Major changed to: %d\n", currentMajor);
+  }
+  int getMajor() {
+    return currentMajor;
   }
 }
