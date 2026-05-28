@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "epaper_sender_ble.h"
+#include "secrets.h"
 
 #define BLE_DEVICE_NAME "ePaperBLE_Sender"
 
@@ -43,8 +44,8 @@ namespace SenderBle {
     advertisementData.setManufacturerData(beaconData);
 
     pAdvertising = pServer->getAdvertising();
-    pAdvertising->setMinInterval(0x40); //0x40 == 40ms ==  ca. 25x pro Sekunde || 0x320 == 500ms == 2x pro Sekunde
-    pAdvertising->setMaxInterval(0x40); //0xA0 == 100ms == ca. 10x pro Sekunde || usw...
+    pAdvertising->setMinInterval(BLE_BEACON_SENDING_INTERVAL); 
+    pAdvertising->setMaxInterval(BLE_BEACON_SENDING_INTERVAL); 
     pAdvertising->setAdvertisementData(advertisementData);
     pAdvertising->start();
 
@@ -53,7 +54,6 @@ namespace SenderBle {
   }
 
   void loop() {
-    // delay(5000);
     static long lastPrint = 0;
     if (millis() - lastPrint >= 5000) {
       lastPrint = millis();

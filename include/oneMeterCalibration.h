@@ -7,6 +7,7 @@ namespace OneMeterCalibration {
     int calculateMedianRssi();
     bool checkRssiSamplesReady();
     void reset();
+    void setRssiSampleSize(uint8_t size);
 
 }
 

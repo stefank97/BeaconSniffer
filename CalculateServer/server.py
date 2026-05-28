@@ -25,40 +25,62 @@ logging.basicConfig(
 
 # State to stop the threads
 stop_threads = False
+data_lock = threading.Lock()
 
 # Environment variables
-host = os.getenv("MQTT_HOST")
-port = os.getenv("MQTT_PORT")
-topic = os.getenv("MQTT_TOPIC")
-epaper_topic = os.getenv("MQTT_TOPIC_EPAPER", "beaconsniffer/wifi")
-heatmap_websocket = os.getenv("HEATMAP_WEBSOCKET")
-heatmap_token = os.getenv("HEATMAP_TOKEN")
+def get_required_env(name):
+    value = os.getenv(name)
+    if value is None or value == "":
+        raise ValueError(f"Missing {name} in environment")
+    return value
 
-if not all([host, port, topic, epaper_topic, heatmap_websocket, heatmap_token]):
-    logging.error("Environment variables not set")
-    exit(1)
+
+def get_required_float_env(name):
+    return float(get_required_env(name))
+
+
+host = get_required_env("MQTT_HOST")
+port = get_required_env("MQTT_PORT")
+topic = get_required_env("MQTT_TOPIC")
+epaper_topic = get_required_env("MQTT_TOPIC_EPAPER")
+heatmap_websocket = get_required_env("HEATMAP_WEBSOCKET")
+heatmap_token = get_required_env("HEATMAP_TOKEN")
 
 port = int(port) #If done too early, it crashed before the if-control!
 
 # Create a client instance
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "SubscriberClient")
 
-# Stores for messages (max length 10 - removes old values when full)
-receiver_1 = deque(maxlen=20)
-receiver_2 = deque(maxlen=20)
-receiver_3 = deque(maxlen=20)
 latest_wifi = None
 
-# Initialize the Kalman filter for the 3 receivers
-kf1 = initialize_kalman_filter()
-kf2 = initialize_kalman_filter()
-kf3 = initialize_kalman_filter()
 
 def get_receiver_pos(receiver_id):
     return (
-        float(os.getenv(f"RECEIVER_{receiver_id}_X")),
-        float(os.getenv(f"RECEIVER_{receiver_id}_Y")),
+        get_required_float_env(f"RECEIVER_{receiver_id}_X"),
+        get_required_float_env(f"RECEIVER_{receiver_id}_Y"),
     )
+
+
+def get_receiver_ids():
+    receiver_ids = get_required_env("RECEIVER_IDS")
+
+    return [
+        int(receiver_id.strip())
+        for receiver_id in receiver_ids.split(",")
+        if receiver_id.strip()
+    ]
+
+
+def build_receivers():
+    return {
+        receiver_id: {
+            "position": get_receiver_pos(receiver_id),
+            "measured_power": None,
+            "samples": deque(maxlen=20),
+            "kalman_filter": initialize_kalman_filter(),
+        }
+        for receiver_id in get_receiver_ids()
+    }
 
 
 def build_heatmap_url():
@@ -77,15 +99,14 @@ async def send_heatmap_sample(sample):
         await websocket.send(json.dumps(sample))
 
 
-# Initialize the trilateration controller
+receivers = build_receivers()
+if len(receivers) < 3:
+    logging.error("At least 3 receivers must be configured")
+    exit(1)
+
 locationEstimator = TrilaterationController(
-    bp_1=get_receiver_pos(1),
-    bp_2=get_receiver_pos(2),
-    bp_3=get_receiver_pos(3),
-    measured_power_1=float(os.getenv("RECEIVER_1_TX_POWER", -59)),
-    measured_power_2=float(os.getenv("RECEIVER_2_TX_POWER", -59)),
-    measured_power_3=float(os.getenv("RECEIVER_3_TX_POWER", -59)),
-    path_loss_exponent=float(os.getenv("PATH_LOSS_EXPONENT", 2.2)),
+    receivers=receivers,
+    path_loss_exponent=get_required_float_env("PATH_LOSS_EXPONENT"),
 )
 
 
@@ -110,11 +131,12 @@ def on_message(client, userdata, message):
         response = json.loads(decoded_message)
 
         if message.topic == epaper_topic:
-            latest_wifi = {
-                "ssid": response["ssid"],
-                "bssid": response["bssid"],
-                "wifi_rssi": response["rssi"],
-            }
+            with data_lock:
+                latest_wifi = {
+                    "ssid": response["ssid"],
+                    "bssid": response["bssid"],
+                    "wifi_rssi": response["rssi"],
+                }
             logging.info(f"Latest WiFi: {latest_wifi}")
             return
 
@@ -122,24 +144,27 @@ def on_message(client, userdata, message):
         response["time"] = datetime.now()
         response["address"] = response.get("target", "unknown")
 
-        # Apply Kalman filter to the RSSI values and store them
-        if message.topic == "receivers/1":
-            if "oneMeterRssi" in response:
-                locationEstimator.measured_power_1 = response["oneMeterRssi"]
-            response["filtered_rssi"] = apply_kalman_filter(kf1, response["rssi"])
-            receiver_1.append(response)
-        elif message.topic == "receivers/2":
-            if "oneMeterRssi" in response:
-                locationEstimator.measured_power_2 = response["oneMeterRssi"]
-            response["filtered_rssi"] = apply_kalman_filter(kf2, response["rssi"])
-            receiver_2.append(response)
-        elif message.topic == "receivers/3":
-            if "oneMeterRssi" in response:
-                locationEstimator.measured_power_3 = response["oneMeterRssi"]
-            response["filtered_rssi"] = apply_kalman_filter(kf3, response["rssi"])
-            receiver_3.append(response)
-        else:
+        if not message.topic.startswith("receivers/"):
             return logging.error("Unknown topic received: " + message.topic)
+
+        try:
+            receiver_id = int(message.topic.rsplit("/", 1)[1])
+        except ValueError:
+            return logging.error("Invalid receiver topic received: " + message.topic)
+
+        if receiver_id not in receivers:
+            return logging.error(f"Receiver {receiver_id} is not configured")
+
+        with data_lock:
+            receiver = receivers[receiver_id]
+            if "oneMeterRssi" in response:
+                locationEstimator.set_measured_power(
+                    receiver_id, response["oneMeterRssi"]
+                )
+            response["filtered_rssi"] = apply_kalman_filter(
+                receiver["kalman_filter"], response["rssi"]
+            )
+            receiver["samples"].append(response)
 
     except Exception as e:
         logging.error("Error processing message: " + str(e))
@@ -152,40 +177,70 @@ client.on_message = on_message
 
 def process_values():
     while not stop_threads:
-        if receiver_1 and receiver_2 and receiver_3:
-            logging.info(
-                f"Latest Values: {' | '.join(str(receiver[-1]['rssi']) for receiver in [receiver_1, receiver_2, receiver_3])}"
-            )
-            logging.info(
-                f"Latest Filtered: {' | '.join(str(receiver[-1]['filtered_rssi']) for receiver in [receiver_1, receiver_2, receiver_3])}"
-            )
+        with data_lock:
+            latest_samples = {
+                receiver_id: receiver["samples"][-1]
+                for receiver_id, receiver in receivers.items()
+                if receiver["samples"]
+            }
+            wifi = latest_wifi
 
         # Calculate the estimated position
-        if not (receiver_1 and receiver_2 and receiver_3):
+        if len(latest_samples) < len(receivers):
             logging.info("Not enough data to calculate position")
             time.sleep(5)
             continue
 
-        rssi_1 = receiver_1[-1]["filtered_rssi"][0]
-        rssi_2 = receiver_2[-1]["filtered_rssi"][0]
-        rssi_3 = receiver_3[-1]["filtered_rssi"][0]
+        missing_measured_power = [
+            receiver_id
+            for receiver_id, receiver in receivers.items()
+            if receiver["measured_power"] is None
+        ]
+        if missing_measured_power:
+            logging.info(
+                "Waiting for oneMeterRssi from receivers: "
+                + ", ".join(str(receiver_id) for receiver_id in missing_measured_power)
+            )
+            time.sleep(5)
+            continue
 
-        # Update the position
-        position = locationEstimator.get_position(rssi_1, rssi_2, rssi_3)
+        logging.info(
+            "Latest Values: "
+            + " | ".join(
+                f"{receiver_id}: {sample['rssi']}"
+                for receiver_id, sample in sorted(latest_samples.items())
+            )
+        )
+        logging.info(
+            "Latest Filtered: "
+            + " | ".join(
+                f"{receiver_id}: {sample['filtered_rssi']}"
+                for receiver_id, sample in sorted(latest_samples.items())
+            )
+        )
+
+        rssi_by_receiver = {
+            receiver_id: sample["filtered_rssi"][0]
+            for receiver_id, sample in latest_samples.items()
+        }
+
+        with data_lock:
+            position = locationEstimator.get_position(rssi_by_receiver)
         logging.info(f"Estimated position: {position}")
 
-        if latest_wifi is None:
+        if wifi is None:
             logging.info("No WiFi data yet, not sending heatmap sample")
             time.sleep(5)
             continue
 
+        first_sample = latest_samples[min(latest_samples)]
         sample = {
-            "target": receiver_1[-1].get("target", "ePaperBLE_Sender"),
+            "target": first_sample.get("target", "ePaperBLE_Sender"),
             "x": round(float(position[0]), 2),
             "y": round(float(position[1]), 2),
-            "wifi_rssi": latest_wifi["wifi_rssi"],
-            "ssid": latest_wifi["ssid"],
-            "bssid": latest_wifi["bssid"],
+            "wifi_rssi": wifi["wifi_rssi"],
+            "ssid": wifi["ssid"],
+            "bssid": wifi["bssid"],
         }
 
         try:
@@ -194,7 +249,8 @@ def process_values():
         except Exception as e:
             logging.error("Error sending heatmap sample: " + str(e))
 
-        time.sleep(5)
+        time.sleep(os.getenv(SENDING_INTERVALL))
+
 
 def run():
     global stop_threads

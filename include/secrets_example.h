@@ -1,6 +1,6 @@
 #pragma once
 
-#define WIFI_SSID_FOR_MQTT "A1_1DBC80"
-#define WIFI_PW_FOR_MQTT "XA7R235AdQxPC6"
+#define WIFI_SSID_FOR_MQTT "SSID"
+#define WIFI_PW_FOR_MQTT "PW"
 #define MQTT_SERVER_HOST_IP "10.0.0.72"
 #define MQTT_SERVER_PORT 1883

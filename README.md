@@ -1,16 +1,27 @@
+# Intervalls for Sending Beacons/MQTT/etc.
+
+| Was | Wo | Default |
+|---|---|---|
+| BLE Beacon | `include/secrets.h` -> `BLE_BEACON_SENDING_INTERVALL` | `0x40` = ca. 25/s |
+| Receiver Median | `include/secrets.h` -> `BLE_BEACON_RSSI_MEDIAN_SIZE` | `20` Samples |
+| WiFi RSSI | `src/wifi_scanner.cpp` -> `lastDetailScan < 2000` | 2 s |
+| Python/WebSocket | `CalculateServer/server.py` -> `time.sleep(2)` | 2 s |
+
+
 # ESP32-RECEIVER:
 
-Für "main_receiver.cpp" muss man in "receiver_ble.cpp" pro Gerät die Nummer erhöhen!
+NEU:
+
+"platformio.ini" hat eine build_flag mit der man über "n" iterieren kann, wenn man die ESP32-Receiver flasht.
+
+```
+build_flags =
+        -D RECEIVER_ID=n
+```
 
 Farbe LED ESP32: 1 == rot, 2 == grün, 3 == blau , n == weiß...
 
-```
-constexpr const int RECEIVER_ID = 1;
-constexpr const char *MQTT_TOPIC = "receivers/1";
-constexpr const char *MQTT_CLIENT_ID = "esp32-receiver-1";
-```
-
-Zusätzlich muss man unter "secrets_example.h" zu "Secrets.h" kopieren/umbenennen und die WLAN- sowie HOST-Informationen für die WLAN-/MQTT-Verbindung ausfüllen.
+Zusätzlich muss man "secrets_example.h" zu "Secrets.h" kopieren/umbenennen und die WLAN- sowie HOST-Informationen für die WLAN-/MQTT-Verbindung ausfüllen.
 
 # MQTT-Docker-Container
 
@@ -23,7 +34,7 @@ Bekannte Fehler:
 ```
 Verbinde MQTT...fehlgeschlagen, rc=-2
 ```
-Hier kann sein, dass die DHCP-IP-Adresse des Hosts sich geändert hat!
+Hier kann sein, dass die IP-Adresse des Hosts sich durch DHCP geändert hat!
 
 ## Test CLI command:
 
@@ -84,4 +95,9 @@ python -m pip install -r requirements.txt
 ```
 
 Am besten wie immer direkt aus dem Ordner starten, sonst gibts Probleme mit der .env-file!
+
+## Fragen:
+* Was ist eigentlich dieser "Kalman-Filter" genau?
+* Was ist eigentlich der "path-loss-exponent" genau?
+* Was ist eigentlich "Least Square Multilateration" genau?
 
