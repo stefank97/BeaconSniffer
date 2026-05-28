@@ -96,3 +96,8 @@ python -m pip install -r requirements.txt
 
 Am besten wie immer direkt aus dem Ordner starten, sonst gibts Probleme mit der .env-file!
 
+## Fragen:
+* Was ist eigentlich dieser "Kalman-Filter" genau?
+* Was ist eigentlich der "path-loss-exponent" genau?
+* Was ist eigentlich "Least Square Multilateration" genau?
+
