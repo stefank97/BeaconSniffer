@@ -122,6 +122,7 @@ if len(receivers) < 3:
 locationEstimator = TrilaterationController(
     receivers=receivers,
     path_loss_exponent=get_required_float_env("PATH_LOSS_EXPONENT"),
+    min_distance_meters=get_required_float_env("MIN_DISTANCE_METERS"),
 )
 
 
