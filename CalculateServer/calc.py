@@ -2,11 +2,18 @@ from scipy.optimize import least_squares
 
 
 class TrilaterationController:
-    def __init__(self, receivers: dict, path_loss_exponent: float):
+    def __init__(
+        self,
+        receivers: dict,
+        path_loss_exponent: float,
+        min_distance_meters: float = 0.0,
+    ):
         if not receivers:
             raise ValueError("Receivers must be provided")
         if path_loss_exponent is None:
             raise ValueError("Path loss exponent must be provided")
+        if min_distance_meters < 0:
+            raise ValueError("Minimum distance must not be negative")
 
         for receiver_id, receiver in receivers.items():
             if "position" not in receiver:
@@ -16,6 +23,7 @@ class TrilaterationController:
 
         self.receivers = receivers
         self.path_loss_exponent = path_loss_exponent
+        self.min_distance_meters = min_distance_meters
 
     def set_measured_power(self, receiver_id: int, measured_power: float):
         if receiver_id not in self.receivers:
@@ -66,11 +74,15 @@ class TrilaterationController:
                 estimated_distance = (
                     (x - receiver_x) ** 2 + (y - receiver_y) ** 2
                 ) ** 0.5
-                errors.append(estimated_distance - measured_distance)
+                weight_floor = max(self.min_distance_meters, 0.1)
+                errors.append(
+                    (estimated_distance - measured_distance)
+                    / max(measured_distance, weight_floor)
+                )
 
             return errors
 
-        result = least_squares(residuals, (initial_x, initial_y))
+        result = least_squares(residuals, (initial_x, initial_y), loss="soft_l1")
         return result.x[0], result.x[1]
 
     def get_distance(self, rssi: float, receiver_id: int) -> float:
@@ -85,7 +97,8 @@ class TrilaterationController:
                 f"Measured power for receiver {receiver_id} is not available yet"
             )
 
-        return 10 ** ((measured_power - rssi) / (10 * self.path_loss_exponent))
+        distance = 10 ** ((measured_power - rssi) / (10 * self.path_loss_exponent))
+        return max(distance, self.min_distance_meters)
 
     def __str__(self):
         return f"TrilaterationController(receivers={self.receivers})"
