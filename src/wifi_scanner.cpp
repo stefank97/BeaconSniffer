@@ -16,12 +16,13 @@ namespace WifiScanner {
     static void publishNetwork(const NetworkInfo &network);
     static String buildPayload(const NetworkInfo &network);
 
-    static int selectedListItem = 0; //Für main menu (0 main menu, 1 network0, 2 network1, ...)
+    static int selectedListItem = 0; //FÃ¼r main menu (0 main menu, 1 network0, 2 network1, ...)
     static const int listFirstLine = 0;
     static const int maxNetworks = 10;
     static int networkCount = 0;
     static int selectedNetwork = 0;
     static NetworkInfo networks[maxNetworks];
+    static int trackedChannel = 0;
 
     //Details MQTT 
     static String trackedBssid;
@@ -32,28 +33,40 @@ namespace WifiScanner {
     static WiFiClient wifiClient;
     static PubSubClient mqttClient(wifiClient);
 
-    void scan() {
+    void scan(int mode) {
         WiFi.mode(WIFI_STA);
         // WiFi.disconnect();
         // delay(100);
+        int foundNetworks;
+
+        if (mode == 0) {
+            foundNetworks = WiFi.scanNetworks();
+        } else {
+            foundNetworks = WiFi.scanNetworks(false, true, false, 80, trackedChannel);
+        }
 
 
+        
 
-        int foundNetworks = WiFi.scanNetworks();
-
-        networkCount = min(foundNetworks, maxNetworks);
+        // networkCount = min(foundNetworks, maxNetworks);
+        networkCount = 0;
         selectedListItem = 0;
         selectedNetwork = 0;
 
 
         Serial.printf("Found %d networks\n", foundNetworks);
 
-        for (int i = 0; i < networkCount; i++) {
-            networks[i].ssid = WiFi.SSID(i);
-            networks[i].bssid = WiFi.BSSIDstr(i);
-            networks[i].rssi = WiFi.RSSI(i);
-            networks[i].channel = WiFi.channel(i);
-            networks[i].encryption = WiFi.encryptionType(i);
+        for (int i = 0; i < foundNetworks && networkCount < maxNetworks; i++) {
+            if (mode == 1 && WiFi.BSSIDstr(i) != trackedBssid) {
+                continue;
+            }
+            networks[networkCount].ssid = WiFi.SSID(i);
+            networks[networkCount].bssid = WiFi.BSSIDstr(i);
+            networks[networkCount].rssi = WiFi.RSSI(i);
+            networks[networkCount].channel = WiFi.channel(i);
+            networks[networkCount].encryption = WiFi.encryptionType(i);
+
+            networkCount++;
         }
         
         WiFi.scanDelete();
@@ -117,6 +130,7 @@ namespace WifiScanner {
         Display::refresh();
 
         trackedBssid = networks[selectedNetwork].bssid;
+        trackedChannel = networks[selectedNetwork].channel;
         detailsActive = true;
         lastDetailScan = 0;
 
@@ -144,17 +158,26 @@ namespace WifiScanner {
 
         int oldSelectedListItem = selectedListItem;
         lastDetailScan = millis();
-        scan();
+        scan(1);
         selectedListItem = oldSelectedListItem;
 
         int index = getNetworkByBssid(trackedBssid);
 
         if (index == -1) {
-            Serial.println("Tracked WiFi not found.");
-            return;
+            Serial.println("Tracked WiFi not found on tracked channel. Running full scan fallback.");
+            scan(0);
+            selectedListItem = oldSelectedListItem;
+
+            index = getNetworkByBssid(trackedBssid);
+
+            if (index == -1) {
+                Serial.println("Tracked WiFi not found.");
+                return;
+            }
         }
 
         selectedNetwork = index;
+        trackedChannel = networks[selectedNetwork].channel;
 
         //DEBUG
         NetworkInfo &network = networks[selectedNetwork];
@@ -179,7 +202,7 @@ namespace WifiScanner {
     }
 
     void scanAndShowList() {
-        scan();
+        scan(0);
         showList();
     }
 
