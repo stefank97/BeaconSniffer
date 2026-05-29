@@ -52,6 +52,21 @@ port = int(port) #If done too early, it crashed before the if-control!
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "SubscriberClient")
 
 latest_wifi = None
+MQTT_PACKET_VALID_SECONDS = get_required_float_env("MAX_SAMPLE_AGE_SECONDS")
+
+
+def is_recent_packet(packet, now=None):
+    if packet is None:
+        return False
+
+    received_at = packet.get("received_at")
+    if received_at is None:
+        return False
+
+    if now is None:
+        now = time.monotonic()
+
+    return now - received_at <= MQTT_PACKET_VALID_SECONDS
 
 
 def get_receiver_pos(receiver_id):
@@ -136,12 +151,14 @@ def on_message(client, userdata, message):
                     "ssid": response["ssid"],
                     "bssid": response["bssid"],
                     "wifi_rssi": response["rssi"],
+                    "received_at": time.monotonic(),
                 }
             logging.info(f"Latest WiFi: {latest_wifi}")
             return
 
         # ESP receiver payload: {"target":"...","rssi":-65,"oneMeterRssi":-59}
         response["time"] = datetime.now()
+        response["received_at"] = time.monotonic()
         response["address"] = response.get("target", "unknown")
 
         if not message.topic.startswith("receivers/"):
@@ -178,16 +195,20 @@ client.on_message = on_message
 def process_values():
     while not stop_threads:
         with data_lock:
+            now = time.monotonic()
             latest_samples = {
                 receiver_id: receiver["samples"][-1]
                 for receiver_id, receiver in receivers.items()
-                if receiver["samples"]
+                if receiver["samples"] and is_recent_packet(receiver["samples"][-1], now)
             }
-            wifi = latest_wifi
+            wifi = latest_wifi if is_recent_packet(latest_wifi, now) else None
 
         # Calculate the estimated position
         if len(latest_samples) < len(receivers):
-            logging.info("Not enough data to calculate position")
+            logging.info(
+                "Not enough recent data to calculate position "
+                f"(valid window: {MQTT_PACKET_VALID_SECONDS:.0f}s)"
+            )
             time.sleep(5)
             continue
 
@@ -229,7 +250,10 @@ def process_values():
         logging.info(f"Estimated position: {position}")
 
         if wifi is None:
-            logging.info("No WiFi data yet, not sending heatmap sample")
+            logging.info(
+                "No recent WiFi data, not sending heatmap sample "
+                f"(valid window: {MQTT_PACKET_VALID_SECONDS:.0f}s)"
+            )
             time.sleep(5)
             continue
 
@@ -249,7 +273,7 @@ def process_values():
         except Exception as e:
             logging.error("Error sending heatmap sample: " + str(e))
 
-        time.sleep(os.getenv(SENDING_INTERVALL))
+        time.sleep(get_required_float_env("SENDING_INTERVAL_SECONDS"))
 
 
 def run():
