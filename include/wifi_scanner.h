@@ -13,7 +13,7 @@ namespace WifiScanner {
         int encryption;
     };
 
-    void scan();
+    void scan(int mode);
     void nextSelection();
     void showDetails();
     void showList();
