@@ -82,7 +82,7 @@ class TrilaterationController:
 
             return errors
 
-        result = least_squares(residuals, (initial_x, initial_y), loss="soft_l1")
+        result = least_squares(residuals, (initial_x, initial_y), bounds=([0, 0], [float("inf"), float("inf")]), loss="soft_l1")
         return result.x[0], result.x[1]
 
     def get_distance(self, rssi: float, receiver_id: int) -> float:
