@@ -1,3 +1,7 @@
+# TODOS:
+
+* Checkliste für Init-Setup?
+
 # Intervalls for Sending Beacons/MQTT/etc.
 
 | Was | Wo | Default |
@@ -23,6 +27,31 @@ Farbe LED ESP32: 1 == rot, 2 == grün, 3 == blau , n == weiß...
 
 Zusätzlich muss man "secrets_example.h" zu "Secrets.h" kopieren/umbenennen und die WLAN- sowie HOST-Informationen für die WLAN-/MQTT-Verbindung ausfüllen.
 
+## Pycom LoPy4 flashen how to:
+
+### Install: 
+
+Pycom Upgrade tool installieren: "https://docs.pycom.io/updatefirmware/device/"
+
+### Navigate: 
+In das Repo navigieren:
+```
+cd C:\Users\username\source\repos\BeaconSniffer
+```
+### Build: 
+Über Platformio kann man builden und dann über die powershell flashen.
+
+### Flash:
+
+<Username> bzw. Pfad wenn nötig ändern!
+
+Dann folgenden Code ausführen in der PowerShell:
+```
+C:\Users\<username>\.platformio\penv\Scripts\python.exe C:\Users\<username>\.platformio\packages\tool-esptoolpy\esptool.py --chip esp32 --port COM12 --baud 115200 --before no_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 .pio\build\pycom_receiver\bootloader.bin 0x8000 .pio\build\pycom_receiver\partitions.bin 0xe000 C:\Users\<username>\.platformio\packages\framework-arduinoespressif32\tools\partitions\boot_app0.bin 0x10000 .pio\build\pycom_receiver\firmware.bin
+```
+
+Read: Platfomio Serial-Monitor funktioniert dennoch!
+
 # MQTT-Docker-Container
 
 Einfach in Linux bzw. WSL im Ordner "Mosquitto":
@@ -40,6 +69,7 @@ Hier kann sein, dass die IP-Adresse des Hosts sich durch DHCP geändert hat!
 
 ```
 docker exec -it mymqtt mosquitto_sub -h localhost -t "receivers/#" -v
+docker exec -it mymqtt mosquitto_sub -h localhost -t "beaconsniffer/wifi" -v
 ```
 Die ESP32-Receiver publishen per "receivers/#" den BLE-RSSI Wert vom ePaper (Achtung nicht den WLAN-ePaper-RSSI-Wert)
 
