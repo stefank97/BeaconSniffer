@@ -1,7 +1,8 @@
 services:
     mosquitto:
-        container_name: mymqtt 
-        image: eclipse-mosquitto:2.0.18
+        container_name: mymqtt
+        image: eclipse-mosquitto:latest
+        #image: eclipse-mosquitto:2.0.18 #wenn Probleme wegen allow_anonymous true
         ports:
             - "1883:1883"
             - "9001:9001"

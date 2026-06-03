@@ -1,6 +1,7 @@
 # TODOS:
 
 * Checkliste für Init-Setup?
+* x-y-Werte der Statischen Receiver über MQTT?? Future Work...
 
 # Intervalls for Sending Beacons/MQTT/etc.
 
