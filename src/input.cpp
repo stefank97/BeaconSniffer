@@ -6,6 +6,7 @@
 #include "display.h"
 #include "wifi_scanner.h"
 #include "epaper_sender_ble.h"
+#include "ble_scanner.h"
 
 namespace Input {
 
@@ -43,6 +44,13 @@ namespace Input {
             if (screenState == ScreenState::WifiDetails) {
                 return;
             }
+            if (screenState == ScreenState::BleList) {
+                BleScanner::nextSelection();
+                return;
+            }
+            if(screenState == ScreenState::BleDetails) {
+                return;
+            }
         });
 
         navButton.setLongClickHandler([] (Button2 &button) {
@@ -53,7 +61,8 @@ namespace Input {
                     return;
                 }
                 if (selectedItem == 1) { //Bluetooth Scanner
-
+                    BleScanner::scanAndShowList();
+                    screenState = ScreenState::BleList;
                     return;
                 }
                 if (selectedItem == 2) {
@@ -66,7 +75,7 @@ namespace Input {
                 
 
             }
-            
+            //Wifi
             if (screenState == ScreenState::WifiList) {
                 if (WifiScanner::returnSelected()) {
                     showMainMenu();
@@ -84,11 +93,36 @@ namespace Input {
                 setWifiListState();
                 return;
             }
+            //Ble
+            if (screenState == ScreenState::BleList) {
+                if (BleScanner::returnSelected()) {
+                    showMainMenu();
+                    screenState = ScreenState::MainMenu;
+                    return;
+                }
+                BleScanner::showDetails();
+                screenState = ScreenState::BleDetails;
+                return;
+            }
+
+            if (screenState == ScreenState::BleDetails) {
+                BleScanner::exitDetails();
+                BleScanner::showList();
+                screenState = ScreenState::BleList;
+                return;
+            }
+
+
+
         });
 
         navButton.setDoubleClickHandler([](Button2 &button) {
             if (screenState == ScreenState::WifiList) {
                 WifiScanner::scanAndShowList();
+                return;
+            }
+            if (screenState == ScreenState::BleList) {
+                BleScanner::scanAndShowList();
                 return;
             }
         });
