@@ -20,7 +20,11 @@ namespace Input {
     static ScreenState screenState = ScreenState::MainMenu;
     static void showMainMenu();
     static void nextMainMenuSelection();
-    static const int mainMenuItemCount = 4;
+    static const int mainMenuItemCount = 3;
+
+    static bool calibrationActive = false;
+    static unsigned long calibrationStartedAt = 0;
+    static const unsigned long calibrationDurationMs = 5000;
 
     static Button2 navButton(BUTTON_1);
     static int selectedItem = 0;
@@ -53,12 +57,9 @@ namespace Input {
                     return;
                 }
                 if (selectedItem == 2) {
-                    SenderBle::setMajor(1);
-                    showMainMenu();
-                    return;
-                }
-                if (selectedItem == 3) {
                     SenderBle::setMajor(100);
+                    calibrationActive = true;
+                    calibrationStartedAt = millis();
                     showMainMenu();
                     return;
                 }
@@ -98,6 +99,12 @@ namespace Input {
 
     void loop() {
         navButton.loop();
+
+        if (calibrationActive && millis() - calibrationStartedAt >= calibrationDurationMs) {
+            SenderBle::setMajor(1);
+            calibrationActive = false;
+            showMainMenu();
+        }
     }
 
     void setWifiListState() {
@@ -130,13 +137,12 @@ namespace Input {
         // Display::printLine(1, ">>Sniffing for Networks...", epd_bitmap_breathing);
 
         Display::printLine(1, "--Main Menu--");
-        String beaconMode = "Current Beacon Major: " + String(SenderBle::getMajor());
-        Display::printLine(2, beaconMode.c_str());
+        // String beaconMode = "Current Beacon Major: " + String(SenderBle::getMajor());
+        // Display::printLine(2, beaconMode.c_str());
         
-        Display::printLine(3, selectedItem == 0 ? "> WiFi Scanner" : "  WiFi Scanner");
-        Display::printLine(4, selectedItem == 1 ? "> Bluetooth Scanner" : "  Bluetooth Scanner");
-        Display::printLine(5, selectedItem == 2 ? "> Standard Beacon" : "  Standard Beacon");
-        Display::printLine(6, selectedItem == 3 ? "> Calibration" : "  Calibration");
+        Display::printLine(2, selectedItem == 0 ? "> WiFi Scanner" : "  WiFi Scanner");
+        Display::printLine(3, selectedItem == 1 ? "> Bluetooth Scanner" : "  Bluetooth Scanner");
+        Display::printLine(4, selectedItem == 2 ? "> Calibration" : "  Calibration");
         Display::refresh();
     }
 
