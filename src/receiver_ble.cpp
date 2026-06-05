@@ -28,6 +28,8 @@ int medianRssi = 0;
 bool hasNewMedianRssi = false;
 int oneMeterRssi = -59; //Calibration needed, or Default -59...
 
+int lastMajor = -1;
+
 namespace ReceiverBle {
   BLEScan *pBLEScan = nullptr;
 
@@ -58,6 +60,12 @@ namespace ReceiverBle {
         uint16_t major =
           (static_cast<uint8_t>(data[20]) << 8) |
           static_cast<uint8_t>(data[21]);
+
+        if (lastMajor != major) {
+          OneMeterCalibration::reset();
+          lastMajor = major;
+          Serial.printf("Major changed to %u, RSSI buffer reset.\n", major);
+        }
 
         if (major == 1) {
           OneMeterCalibration::setRssiSampleSize(BLE_BEACON_RSSI_MEDIAN_SIZE);
