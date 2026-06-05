@@ -33,6 +33,31 @@ Zusätzlich muss man "secrets_example.h" zu "Secrets.h" kopieren/umbenennen und 
 
 Pycom Upgrade tool installieren: "https://docs.pycom.io/updatefirmware/device/"
 
+## Firmware-Update mit dem Pycom Firmware Upgrade Tool
+
+Für das Firmware-Update wird das **Pycom Firmware Upgrade Tool** benötigt. Dieses befindet sich standardmäßig unter folgendem Pfad:
+
+```text
+C:\Program Files (x86)\Pycom\Pycom Firmware Update
+```
+
+Nach dem Start des Tools sind im Assistenten folgende Schritte durchzuführen:
+
+1. Die Optionen **Include development release** und **Send anonymous usage statistics** deaktivieren.
+
+2. Die Verbindungseinstellungen wie folgt konfigurieren:
+
+   * **Port:** `COM12`
+     Der verwendete Port kann in PlatformIO unter **PlatformIO Home → Devices** überprüft werden.
+   * **Speed:** `115200`
+   * **Show Advanced Settings:** aktivieren
+   * **Type:** `pybytes`
+   * **Enable Pybytes, SmartConfig support:** aktivieren
+
+3. Die Registrierung bei Pybytes über **Skip Pybytes registration** überspringen.
+
+4. Auf der folgenden Seite keine weiteren Einstellungen ändern und das Firmware-Update mit **Continue** starten.
+
 ### Navigate: 
 In das Repo navigieren:
 ```
@@ -43,12 +68,28 @@ cd C:\Users\username\source\repos\BeaconSniffer
 
 ### Flash:
 
-<Username> bzw. Pfad wenn nötig ändern!
+Den Pycom-LoPy4 in den Update-Modus bringen
+```
+& "C:\Program Files (x86)\Pycom\Pycom Firmware Update\pycom-fwtool-cli.exe" -p COM12 -s 115200 --pic -x chip_id
+```
 
-Dann folgenden Code ausführen in der PowerShell:
+<Username> bzw. Pfad wenn nötig ändern! Dann folgenden Code ausführen in der PowerShell:
 ```
 C:\Users\<username>\.platformio\penv\Scripts\python.exe C:\Users\<username>\.platformio\packages\tool-esptoolpy\esptool.py --chip esp32 --port COM12 --baud 115200 --before no_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 .pio\build\pycom_receiver\bootloader.bin 0x8000 .pio\build\pycom_receiver\partitions.bin 0xe000 C:\Users\<username>\.platformio\packages\framework-arduinoespressif32\tools\partitions\boot_app0.bin 0x10000 .pio\build\pycom_receiver\firmware.bin
 ```
+
+Nachdem der Code läuft und
+```
+Connecting ...
+```
+zeigt, dann Safe Boot am Expensionboard gedrückt halten, RST-Button am LoPy4 kurz drücken und nach weiteren 2-3 Sekunden Safe Boot auslassen. Dann startet der Upload.
+
+Danach den Upload-Modus wieder verlassen mit folgendem Code.
+```
+& "C:\Program Files (x86)\Pycom\Pycom Firmware Update\pycom-fwtool-cli.exe" -p COM12 --pic exit
+```
+
+Nun sollte der PoLy4 mit der eigenen Firmware laufen.
 
 Read: Platfomio Serial-Monitor funktioniert dennoch!
 
