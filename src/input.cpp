@@ -25,7 +25,7 @@ namespace Input {
 
     static bool calibrationActive = false;
     static unsigned long calibrationStartedAt = 0;
-    static const unsigned long calibrationDurationMs = 5000;
+    static const unsigned long calibrationDurationMs = 10000;
 
     static Button2 navButton(BUTTON_1);
     static int selectedItem = 0;

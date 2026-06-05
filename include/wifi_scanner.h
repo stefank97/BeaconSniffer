@@ -21,6 +21,7 @@ namespace WifiScanner {
     void loop();
     void exitDetails();
     bool returnSelected();
+    void loop();
 }
 
 #endif

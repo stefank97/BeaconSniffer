@@ -59,6 +59,12 @@ namespace BleScanner {
         Display::printLine(0, selectedListItem == 0 ? "> Return to Main Menu" : "  Return to Main Menu");
         Display::printLine(1, "--BLE scan results--");
 
+        if (deviceCount == 0) {
+            Display::printLine(2, "No BLE selected");
+            Display::refresh();
+            return;
+        }
+
         for (int i = 0; i < deviceCount; i++) {
             int listItem = i + 1;
 
@@ -93,13 +99,12 @@ namespace BleScanner {
             return;
         }
 
-        Display::clear();
-
-        if (deviceCount == 0) {
-            Display::printLine(0, "No BLE selected");
-            Display::refresh();
+        if (selectedDevice < 0 || selectedDevice >= deviceCount) {
+            Serial.println("Details could not be displayed.");
             return;
         }
+
+        Display::clear();
 
         BleDeviceInfo &device = devices[selectedDevice];
 
@@ -119,6 +124,12 @@ namespace BleScanner {
 
     void exitDetails() {
         detailsActive = false;
+    }
+
+    void loop() {
+        if (!detailsActive) {
+            return;
+        }
     }
 
 }
