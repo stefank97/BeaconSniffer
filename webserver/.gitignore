@@ -1,0 +1,35 @@
+# Secrets / Environment
+.env
+.env.*
+*.env
+!.env.example
+token.txt
+*.key
+*.pem
+*.crt
+
+# Runtime / Database data
+postgres-data/
+mosquitto/data/
+mosquitto/log/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+ws-test-env/
+
+# Test scripts
+test_ws.py
+
+# Logs
+*.log
+logs/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
