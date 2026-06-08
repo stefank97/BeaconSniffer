@@ -1909,6 +1909,94 @@ def heatmap_view():
             return Math.ceil(value * 2) / 2;
         }
 
+        function applyRoomGeometry() {
+            const room = document.getElementById("room");
+
+            if (!room) {
+                return;
+            }
+
+            room.style.aspectRatio = `${mapWidth} / ${mapHeight}`;
+
+            // Ein Rasterfeld entspricht 1 Meter.
+            // Bei 5 m × 4 m ergibt das 20% × 25%.
+            const grid = room.querySelector(".grid");
+
+            if (grid) {
+                grid.style.backgroundSize = `${100 / mapWidth}% ${100 / mapHeight}%`;
+            }
+        }
+
+        function updateCoordinateInputLimits() {
+            const xInputs = [
+                "sampleX",
+                "routerX",
+                "esp01X",
+                "esp02X",
+                "esp03X",
+                "esp04X",
+            ];
+
+            const yInputs = [
+                "sampleY",
+                "routerY",
+                "esp01Y",
+                "esp02Y",
+                "esp03Y",
+                "esp04Y",
+            ];
+
+            for (const id of xInputs) {
+                const input = document.getElementById(id);
+
+                if (input) {
+                    input.max = baseRoomWidth.toFixed(1);
+                }
+            }
+
+            for (const id of yInputs) {
+                const input = document.getElementById(id);
+
+                if (input) {
+                    input.max = baseRoomHeight.toFixed(1);
+                }
+            }
+        }
+
+        function validateInsideRoom(x, y, label) {
+            if (x > baseRoomWidth || y > baseRoomHeight) {
+                document.getElementById("adminStatus").textContent =
+                    label +
+                    " liegt außerhalb der aktuellen Raumgröße (" +
+                    formatMeters(baseRoomWidth) +
+                    " m × " +
+                    formatMeters(baseRoomHeight) +
+                    " m). Bitte zuerst die Raumgröße erhöhen oder die Koordinaten anpassen.";
+
+                return false;
+            }
+
+            return true;
+        }
+
+        function isPointInsideMap(point) {
+            const x = Number(point.x);
+            const y = Number(point.y);
+
+            return (
+                Number.isFinite(x) &&
+                Number.isFinite(y) &&
+                x >= 0 &&
+                y >= 0 &&
+                x <= mapWidth &&
+                y <= mapHeight
+            );
+        }
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
         function loadStoredRoomSize() {
             const storedWidth = Number(localStorage.getItem("iotRoomWidth") || FALLBACK_ROOM_WIDTH);
             const storedHeight = Number(localStorage.getItem("iotRoomHeight") || FALLBACK_ROOM_HEIGHT);
@@ -1916,8 +2004,14 @@ def heatmap_view():
             baseRoomWidth = Number.isFinite(storedWidth) && storedWidth > 0 ? storedWidth : FALLBACK_ROOM_WIDTH;
             baseRoomHeight = Number.isFinite(storedHeight) && storedHeight > 0 ? storedHeight : FALLBACK_ROOM_HEIGHT;
 
+            mapWidth = baseRoomWidth;
+            mapHeight = baseRoomHeight;
+
             document.getElementById("roomWidthInput").value = baseRoomWidth.toFixed(1);
             document.getElementById("roomHeightInput").value = baseRoomHeight.toFixed(1);
+
+            updateCoordinateInputLimits();
+            applyRoomGeometry();
         }
 
         function saveRoomSize() {
@@ -1936,11 +2030,21 @@ def heatmap_view():
             localStorage.setItem("iotRoomWidth", baseRoomWidth);
             localStorage.setItem("iotRoomHeight", baseRoomHeight);
 
+            mapWidth = baseRoomWidth;
+            mapHeight = baseRoomHeight;
+
             document.getElementById("roomWidthInput").value = baseRoomWidth.toFixed(1);
             document.getElementById("roomHeightInput").value = baseRoomHeight.toFixed(1);
 
+            updateCoordinateInputLimits();
+            applyRoomGeometry();
+
             document.getElementById("adminStatus").textContent =
-                "Raumgröße wurde übernommen.";
+                "Raumgröße wurde übernommen. Die Heatmap verwendet jetzt exakt " +
+                formatMeters(baseRoomWidth) +
+                " m × " +
+                formatMeters(baseRoomHeight) +
+                " m.";
 
             refresh();
         }
@@ -1952,36 +2056,35 @@ def heatmap_view():
             localStorage.setItem("iotRoomWidth", baseRoomWidth);
             localStorage.setItem("iotRoomHeight", baseRoomHeight);
 
+            mapWidth = baseRoomWidth;
+            mapHeight = baseRoomHeight;
+
             document.getElementById("roomWidthInput").value = baseRoomWidth.toFixed(1);
             document.getElementById("roomHeightInput").value = baseRoomHeight.toFixed(1);
 
+            updateCoordinateInputLimits();
+            applyRoomGeometry();
+
             document.getElementById("adminStatus").textContent =
-                "Standardgröße wurde wiederhergestellt.";
+                "Standardgröße 5,0 m × 4,0 m wurde wiederhergestellt.";
 
             refresh();
         }
 
         function computeMapSize(samples, router) {
-            let maxX = baseRoomWidth;
-            let maxY = baseRoomHeight;
+            // Die sichtbare Heatmap darf NICHT automatisch durch Samples,
+            // Router oder ESP-Positionen wachsen.
+            //
+            // Vorher wurde durch maxX + 0.2 und roundUpHalf() aus 5.0 × 4.0
+            // optisch 5.5 × 4.5. Dadurch passten die ESP-Koordinaten und das
+            // Heat-Feld nicht mehr zusammen.
+            //
+            // Ab jetzt ist die Eingabe "Raumgröße / Heat-Feld" die einzige
+            // Quelle für die sichtbare Koordinatenfläche.
+            mapWidth = baseRoomWidth;
+            mapHeight = baseRoomHeight;
 
-            // Wichtig:
-            // ESP-Positionen erweitern die Heatmap NICHT mehr automatisch.
-            // Dadurch kann der Raum auch kleiner als 5x4 eingestellt werden.
-            for (const sample of samples || []) {
-                maxX = Math.max(maxX, Number(sample.x || 0));
-                maxY = Math.max(maxY, Number(sample.y || 0));
-            }
-
-            if (router && router.enabled) {
-                maxX = Math.max(maxX, Number(router.x || 0));
-                maxY = Math.max(maxY, Number(router.y || 0));
-            }
-
-            mapWidth = Math.max(roundUpHalf(maxX + 0.2), baseRoomWidth);
-            mapHeight = Math.max(roundUpHalf(maxY + 0.2), baseRoomHeight);
-
-            document.getElementById("room").style.aspectRatio = `${mapWidth} / ${mapHeight}`;
+            applyRoomGeometry();
         }
 
         function getHeatmapMode() {
@@ -2151,8 +2254,16 @@ def heatmap_view():
         }
 
         function setPosition(element, x, y) {
-            const left = (x / mapWidth) * 100;
-            const top = 100 - ((y / mapHeight) * 100);
+            const originalX = Number(x);
+            const originalY = Number(y);
+
+            // Bestehende gespeicherte Punkte, die außerhalb der aktuellen Raumgröße
+            // liegen, werden am Rand angezeigt statt die Heatmap zu vergrößern.
+            const visibleX = clamp(originalX, 0, mapWidth);
+            const visibleY = clamp(originalY, 0, mapHeight);
+
+            const left = (visibleX / mapWidth) * 100;
+            const top = 100 - ((visibleY / mapHeight) * 100);
 
             element.style.left = left + "%";
             element.style.top = top + "%";
@@ -2160,17 +2271,20 @@ def heatmap_view():
             let translateX = -50;
             let translateY = -50;
 
-            if (x <= 0) translateX = 0;
-            if (x >= mapWidth - 0.1) translateX = -100;
-            if (y <= 0) translateY = -100;
-            if (y >= mapHeight - 0.1) translateY = 0;
+            if (visibleX <= 0) translateX = 0;
+            if (visibleX >= mapWidth - 0.1) translateX = -100;
+            if (visibleY <= 0) translateY = -100;
+            if (visibleY >= mapHeight - 0.1) translateY = 0;
 
             element.style.transform = `translate(${translateX}%, ${translateY}%)`;
         }
 
         function setDotPosition(element, x, y) {
-            const left = (x / mapWidth) * 100;
-            const top = 100 - ((y / mapHeight) * 100);
+            const visibleX = clamp(Number(x), 0, mapWidth);
+            const visibleY = clamp(Number(y), 0, mapHeight);
+
+            const left = (visibleX / mapWidth) * 100;
+            const top = 100 - ((visibleY / mapHeight) * 100);
 
             element.style.left = left + "%";
             element.style.top = top + "%";
@@ -2311,7 +2425,7 @@ def heatmap_view():
             const devices = devicesData.devices || [];
             const router = routerData.router;
 
-            const points = samples
+            const allPoints = samples
                 .filter(sample => sample.x !== null && sample.y !== null && sample.wifi_rssi !== null)
                 .map(sample => ({
                     x: Number(sample.x),
@@ -2320,9 +2434,21 @@ def heatmap_view():
                     target: sample.target,
                     ssid: sample.ssid,
                     received_at: sample.received_at,
-                }));
+                }))
+                .filter(sample =>
+                    Number.isFinite(sample.x) &&
+                    Number.isFinite(sample.y) &&
+                    Number.isFinite(sample.wifi_rssi)
+                );
 
-            computeMapSize(points, router);
+            computeMapSize(allPoints, router);
+
+            // Nur Samples innerhalb der aktuellen Raumgröße werden zur Heatmap-
+            // Berechnung verwendet. So verschieben alte oder falsche Koordinaten
+            // nicht mehr das komplette Koordinatensystem.
+            const points = allPoints.filter(isPointInsideMap);
+            const ignoredPoints = allPoints.length - points.length;
+
             drawHeatmap(points);
             renderDevices(devices);
             fillDevicePositionInputs(devices);
@@ -2330,12 +2456,17 @@ def heatmap_view():
             renderTrail(points);
             renderLatestTarget(points.length > 0 ? points[0] : null);
 
-            document.getElementById("status").textContent =
+            let statusText =
                 "Verbunden, Samples: " + points.length +
-                ", Raum: " + formatMeters(mapWidth) + " m × " + formatMeters(mapHeight) + " m" +
-                ", Basisgröße: " + formatMeters(baseRoomWidth) + " m × " + formatMeters(baseRoomHeight) + " m" +
+                ", Raum/Heat-Feld: " + formatMeters(mapWidth) + " m × " + formatMeters(mapHeight) + " m" +
                 ", Modus: " + (getHeatmapMode() === "classified" ? "Klassen" : "Glatt") +
                 ", letzte Aktualisierung: " + new Date().toLocaleTimeString("de-AT");
+
+            if (ignoredPoints > 0) {
+                statusText += ", ignoriert außerhalb des Raums: " + ignoredPoints;
+            }
+
+            document.getElementById("status").textContent = statusText;
         }
 
         async function refresh() {
@@ -2493,6 +2624,10 @@ def heatmap_view():
                 return;
             }
 
+            if (!validateInsideRoom(xNumber, yNumber, "Das ePaper-Sample")) {
+                return;
+            }
+
             const x = xNumber.toFixed(1);
             const y = yNumber.toFixed(1);
 
@@ -2527,6 +2662,10 @@ def heatmap_view():
                 return;
             }
 
+            if (!validateInsideRoom(xNumber, yNumber, "Der Router")) {
+                return;
+            }
+
             const x = xNumber.toFixed(1);
             const y = yNumber.toFixed(1);
 
@@ -2557,6 +2696,10 @@ def heatmap_view():
             if (!Number.isFinite(yNumber) || yNumber < 0) {
                 document.getElementById("adminStatus").textContent =
                     "ESP-y darf nicht negativ sein.";
+                return;
+            }
+
+            if (!validateInsideRoom(xNumber, yNumber, deviceId)) {
                 return;
             }
 
