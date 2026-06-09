@@ -1,13 +1,4 @@
 services:
-  mosquitto:
-    image: eclipse-mosquitto:2
-    container_name: iot-mqtt-broker
-    volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
-    restart: unless-stopped
-
   postgres:
     image: postgres:16
     container_name: iot-postgres
@@ -23,14 +14,10 @@ services:
     build: ./backend
     container_name: iot-backend
     depends_on:
-      - mosquitto
       - postgres
     ports:
       - "${BACKEND_BIND_IP:-127.0.0.1}:8000:8000"
     environment:
-      MQTT_HOST: mosquitto
-      MQTT_PORT: 1883
-      MQTT_TOPIC: iot/wifi/measurements/#
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: iot_wifi

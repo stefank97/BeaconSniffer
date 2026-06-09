@@ -8,6 +8,7 @@ namespace BleScanner {
     bool returnSelected();
     void showDetails();
     void exitDetails();
+    void loop();
 }
 
 #endif

@@ -6,16 +6,16 @@ from collections import deque
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-import paho.mqtt.client as mqtt
+# import paho.mqtt.client as mqtt
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from psycopg2.extras import Json, RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool
 
 
-MQTT_HOST = os.getenv("MQTT_HOST", "mosquitto")
-MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
-MQTT_TOPIC = os.getenv("MQTT_TOPIC", "iot/wifi/measurements/#")
+# MQTT_HOST = os.getenv("MQTT_HOST", "mosquitto")
+# MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
+# MQTT_TOPIC = os.getenv("MQTT_TOPIC", "iot/wifi/measurements/#")
 
 DB_HOST = os.getenv("DB_HOST", "postgres")
 DB_PORT = int(os.getenv("DB_PORT", "5432"))
@@ -33,7 +33,7 @@ VALID_DEVICE_IDS = ["esp01", "esp02", "esp03", "esp04"]
 messages = deque(maxlen=1000)
 messages_lock = threading.Lock()
 
-mqtt_client = None
+# mqtt_client = None
 db_pool = None
 
 
@@ -332,72 +332,72 @@ def save_heatmap_sample(payload: dict):
         db_pool.putconn(conn)
 
 
-def on_connect(client, userdata, flags, reason_code, properties):
-    print(f"Connected to MQTT broker with reason code: {reason_code}")
-    client.subscribe(MQTT_TOPIC, qos=1)
-    print(f"Subscribed to topic: {MQTT_TOPIC}")
+# def on_connect(client, userdata, flags, reason_code, properties):
+#     print(f"Connected to MQTT broker with reason code: {reason_code}")
+#     client.subscribe(MQTT_TOPIC, qos=1)
+#     print(f"Subscribed to topic: {MQTT_TOPIC}")
 
 
-def on_message(client, userdata, msg):
-    payload_raw = msg.payload.decode("utf-8", errors="replace")
+# def on_message(client, userdata, msg):
+#     payload_raw = msg.payload.decode("utf-8", errors="replace")
 
-    try:
-        payload = json.loads(payload_raw)
-    except json.JSONDecodeError:
-        payload = {
-            "raw": payload_raw,
-            "error": "Invalid JSON",
-        }
+#     try:
+#         payload = json.loads(payload_raw)
+#     except json.JSONDecodeError:
+#         payload = {
+#             "raw": payload_raw,
+#             "error": "Invalid JSON",
+#         }
 
-    entry = {
-        "topic": msg.topic,
-        "qos": msg.qos,
-        "received_at": datetime.now(timezone.utc).isoformat(),
-        "payload": payload,
-    }
+#     entry = {
+#         "topic": msg.topic,
+#         "qos": msg.qos,
+#         "received_at": datetime.now(timezone.utc).isoformat(),
+#         "payload": payload,
+#     }
 
-    with messages_lock:
-        messages.appendleft(entry)
+#     with messages_lock:
+#         messages.appendleft(entry)
 
-    save_measurement(msg.topic, payload)
+#     save_measurement(msg.topic, payload)
 
-    print(f"MQTT message received and saved: {entry}")
+#     print(f"MQTT message received and saved: {entry}")
 
 
-def connect_mqtt():
-    global mqtt_client
+# def connect_mqtt():
+#     global mqtt_client
 
-    mqtt_client = mqtt.Client(
-        callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
-        client_id="iot-backend-subscriber",
-        clean_session=False,
-    )
+#     mqtt_client = mqtt.Client(
+#         callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
+#         client_id="iot-backend-subscriber",
+#         clean_session=False,
+#     )
 
-    mqtt_client.on_connect = on_connect
-    mqtt_client.on_message = on_message
+    # mqtt_client.on_connect = on_connect
+    # mqtt_client.on_message = on_message
 
-    while True:
-        try:
-            mqtt_client.connect(MQTT_HOST, MQTT_PORT, keepalive=60)
-            mqtt_client.loop_start()
-            print("MQTT client started")
-            return
-        except Exception as e:
-            print(f"MQTT broker not ready yet: {e}")
-            time.sleep(2)
+    # while True:
+    #     try:
+    #         mqtt_client.connect(MQTT_HOST, MQTT_PORT, keepalive=60)
+    #         mqtt_client.loop_start()
+    #         print("MQTT client started")
+    #         return
+    #     except Exception as e:
+    #         print(f"MQTT broker not ready yet: {e}")
+    #         time.sleep(2)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     wait_for_database()
     init_database()
-    connect_mqtt()
+    # connect_mqtt()
 
     yield
 
-    if mqtt_client:
-        mqtt_client.loop_stop()
-        mqtt_client.disconnect()
+    # if mqtt_client:
+    #     mqtt_client.loop_stop()
+    #     mqtt_client.disconnect()
 
     if db_pool:
         db_pool.closeall()
@@ -421,9 +421,9 @@ def hello_world():
 def health():
     return {
         "status": "ok",
-        "mqtt_host": MQTT_HOST,
-        "mqtt_port": MQTT_PORT,
-        "mqtt_topic": MQTT_TOPIC,
+        # "mqtt_host": MQTT_HOST,
+        # "mqtt_port": MQTT_PORT,
+        # "mqtt_topic": MQTT_TOPIC,
         "database": DB_NAME,
         "websocket": "/ws/heatmap-samples",
     }
